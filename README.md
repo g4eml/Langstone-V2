@@ -1,4 +1,6 @@
-# Langstone SDR Transceiver by Colin Durbridge G4EML
+# Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
+
+** Note this project is still in the development phase. It may not be fully functional.**
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
 
@@ -14,7 +16,7 @@ Currently only the following hardware is supported:-
 
 - Official Raspberry Pi 7" touchscreen, DFRobot DFR0550 5" Touchscreen or Pimoroni Hyperpixel4 4" Touchscreen
 
-- Adalm Pluto SDR Module
+- Adalm Pluto SDR Module or Lime SDR Mini
 
 - USB Audio module. Connected to loudspeaker or headphones and microphone. 
  
