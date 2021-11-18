@@ -1693,16 +1693,6 @@ if(buttonTouched(funcButtonsX+buttonSpaceX*4,funcButtonsY))    //Button 5 =MONI 
         }      
       return;
       } 
-    else if (inputMode==SETTINGS)
-      {
-         setBandBits(0);
-         sendFifo("H0");        //unlock the flowgraph so that it can exit
-         sendFifo("Q");       //kill the SDR
-         clearScreen();
-         writeConfig();
-         sleep(2);                  
-         exit(1);             //return a value of 1 to redisplay the run menu
-      }    
     else
       {
       setInputMode(FREQ);
@@ -2041,9 +2031,8 @@ if(inputMode==SETTINGS)
     displayButton(" ");
     displayButton("NEXT");
     displayButton("PREV");
+    displayButton(" ");
     setForeColour(255,0,0);
-    displayButton1x12("RESTART");
-
     if (portsdownPresent==1)
     {
         displayButton2x12("EXIT TO","PORTSDOWN");
