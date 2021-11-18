@@ -18,6 +18,8 @@ chmod +x /home/pi/Langstone/update-dev
 chmod +x /home/pi/Langstone/set_pluto
 chmod +x /home/pi/Langstone/set_sdr
 chmod +x /home/pi/Langstone/set_sound
+chmod +x /home/pi/Langstone/run_both
+chmod +x /home/pi/Langstone/stop_both
 
 /home/pi/Langstone/set_sdr
 

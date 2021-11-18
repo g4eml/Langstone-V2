@@ -142,6 +142,8 @@ chmod +x update
 chmod +x set_pluto
 chmod +x set_sdr
 chmod +x set_sound
+chmod +x run_both
+chmod +x stop_both
 
 ./build
 
