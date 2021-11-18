@@ -1,10 +1,10 @@
 #!/bin/bash
-# Langstone Install script 
+# Langstone-V2 Install script 
 # Buster Version G4EML 16/11/21
 
-echo "#############################################################"
-echo "## Installing Langstone Transceiver with Hyperpixel Display##"
-echo "#############################################################"
+echo "################################################################"
+echo "## Installing Langstone-V2 Transceiver with Hyperpixel Display##"
+echo "################################################################"
 
 echo "#################################"
 echo "##  Update the Package Manager ##"
@@ -136,11 +136,12 @@ sudo raspi-config nonint do_i2c 0
 
 # install the Langstone Files
 
-echo "#################################"
-echo "##     Installing Langstone    ##"
-echo "#################################"
+echo "####################################"
+echo "##     Installing Langstone-v2    ##"
+echo "####################################"
 
-git clone https://github.com/g4eml/Langstone.git
+git clone https://github.com/g4eml/Langstone-V2.git
+mv Langstone-V2 Langstone
 cd Langstone
 chmod +x build
 chmod +x run_lime
