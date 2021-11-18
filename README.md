@@ -1,5 +1,6 @@
 # Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
 
+# Now with support for Lime SDR and Adalm Pluto
 # Note:- This V2 version is still under development. It may not work correctly.
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
@@ -34,13 +35,13 @@ Currently only the following hardware is supported:-
 
 - 8 Band select Outputs on pins 28, 35, 7, 22, 16, 18, 19, and 21. These can be used to select external filters, amplifiers or Transverters. The state of these outputs is defined using the Band Bits setting. 
 
-- The TX output and first three of the Band Select outputs are also available on the Internal Pluto GPO connector. GPO0 is the Tx Output, GPO1-3 are the Band Select outputs.The main use for these is for when the Pluto is remotely mounted. Care must be taken as these pins are low voltage. They will need to be buffered before use. 
+- When using the Adalm Pluto the TX output and first three of the Band Select outputs are also available on the Internal Pluto GPO connector. GPO0 is the Tx Output, GPO1-3 are the Band Select outputs.The main use for these is for when the Pluto is remotely mounted. Care must be taken as these pins are low voltage. They will need to be buffered before use. 
 
 - To provide I/O when using a Hyperpixel4 display, support has been added for an external MCP23017 module which is cheaply available on Ebay etc. This provides 16 digital inputs or outputs and is connected the the i2c port on the Hyperpixel display. It can also optionally be used with the 7" display by connecting to the Raspbery pi i2c. (pins 3 and 5 of the GPIO connector)
 
 - When using the MCP23017 module Port B will output the 8 band select bits. Port A bit 0 will be the PTT input, Port A bit 1 will be the Key input and Port A bit 7 will be the Tx Output. 
 
-To build a complete functional transceiver you will need to add suitable filters, preamplifiers and power amplifiers to the Adalm Pluto. 
+To build a complete functional transceiver you will need to add suitable filters, preamplifiers and power amplifiers to the Adalm Pluto or Lime SDR. 
 
 All control is done using the touchscreen and mouse.
 
@@ -52,7 +53,7 @@ It is easy to modify a cheap mouse by disconnecting the existing switches and wi
 
 Microphone input and headphone output uses the USB audio device. (a couple of pounds on Ebay)
 
-The software consists of three parts. The SDR itself uses two python GNURadio Flowgraphs (Lang_TX.py and Lang_RX.py)which can be created on a PC running GNUradio companion. These Python programs are then manually edited by adding the code from ControlTX.py and ControlRX.py so it can be controlled by the GUI part of the software. This is written in C and communicates with GNURadio using a Linux Pipe. However to build and use a Langstone transceiver you do not need to know this!
+The software consists of two parts. The SDR itself uses a python GNURadio Flowgraph (Lang_TRX_Pluto.py or Lang_TRX_Lime.py) which can be created on a PC running GNUradio companion. These Python programs are then manually edited by adding the code from ControlTRX_Pluto.py and ControlTRX_Lime.py so it can be controlled by the GUI part of the software (LangstoneGUI_Lime.c or LangstoneGUI_Pluto.c). These are written in C and communicate with GNURadio using a Linux Pipe. However to build and use a Langstone transceiver you do not need to know this!
 
 
 
@@ -69,7 +70,7 @@ The preferred installation method only needs a Windows PC connected to the same 
 
 - Before you remove the card from your Windows PC, look at the card with windows explorer; the volume should be labeled "boot".  Create a new empty file called ssh in the top-level (root) directory by right-clicking, selecting New, Text Document, and then change the name to ssh (not ssh.txt).  You should get a window warning about changing the filename extension.  Click OK.  If you do not get this warning, you have created a file called ssh.txt and you need to rename it ssh.  IMPORTANT NOTE: by default, Windows (all versions) hides the .txt extension on the ssh file.  To change this, in Windows Explorer, select File, Options, click the View tab, and then untick "Hide extensions for known file types". Then click OK.
 
-- Connect the touchscreen display, USB mouse, USB Sound Card, and Pluto now.   Power up the RPi with the new card inserted, and a network connection.  Do not connect a keyboard or HDMI display to the Raspberry Pi. 
+- Connect the touchscreen display, USB mouse, USB Sound Card, and Pluto or Lime SDR now.   Power up the RPi with the new card inserted, and a network connection.  Do not connect a keyboard or HDMI display to the Raspberry Pi. 
 
 - Find the IP address of your Raspberry Pi using an IP Scanner (such as Advanced IP Scanner http://filehippo.com/download_advanced_ip_scanner/ for Windows, or Fing on an iPhone) to get the RPi's IP address 
 
@@ -101,7 +102,7 @@ chmod +x install_hyperpixel4.sh
 ./install_hyperpixel4.sh
 ```
 
-The initial build can take some time, however it does not need any user input, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and start-up with the Langstone Transceiver. Note that sometimes the first reboot does not start correctly. Just recyle the power and try again. If it still does not appear to be working then see the file 'Debugging Notes.txt' and the Langstone wiki for some things to look at.
+The initial build can take some time, however it does not need any user input until the very end, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will ask if you will be using the Adalm Pluto, Lime SDR or if you want to be able to use both. It will then reboot and start-up with the Langstone Transceiver. If you have selected to use bothe the Lime and the Pluto you will be presented with a touch screen selection menu on booting.  Note that sometimes the first reboot does not start correctly. Just recyle the power and try again. If it still does not appear to be working then see the file 'Debugging Notes.txt' and the Langstone wiki for some things to look at.
 
 # Updating the Software. 
 
