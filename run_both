@@ -1,0 +1,13 @@
+
+/home/pi/Langstone/select
+RESULT=$?
+if [ "$RESULT" -eq 91 ]
+then
+/home/pi/Langstone/run_pluto
+fi
+
+if [ "$RESULT" -eq 92 ]
+then
+/home/pi/Langstone/run_lime
+fi
+

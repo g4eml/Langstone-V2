@@ -1,0 +1,51 @@
+while [ 1 ]
+do
+  clear
+  echo
+  echo Langstone SDR Device Selection
+  echo --------------------------------
+  echo "Please select your SDR Hardware" 
+  echo " 1= Adalm Pluto"
+  echo " 2= Lime SDR Mini"
+  echo " 3= Selectable from Start Menu"
+  echo
+  read SDRTYPE
+
+  if [ $SDRTYPE -eq 1 ]
+  then
+    echo
+    echo "Adalm Pluto Selected"
+    echo
+    echo "The Langstone/run and Langstone/stop commands will now use the Adalm Pluto"
+    echo
+    ln -sf /home/pi/Langstone/run_pluto /home/pi/Langstone/run
+    ln -sf /home/pi/Langstone/stop_pluto /home/pi/Langstone/stop
+    break
+  fi
+
+  if [ $SDRTYPE -eq 2 ]
+  then
+    echo
+    echo "Lime SDR Selected"
+    echo
+    echo "The Langstone/run and Langstone/stop commands will now use the Lime SDR"
+    echo
+    ln -sf /home/pi/Langstone/run_lime /home/pi/Langstone/run
+    ln -sf /home/pi/Langstone/stop_lime /home/pi/Langstone/stop
+    break  
+  fi
+  
+  if [ $SDRTYPE -eq 3 ]
+  then
+    echo
+    echo "The Start menu has been enabled"
+    echo
+    ln -sf /home/pi/Langstone/run_both /home/pi/Langstone/run
+    ln -sf /home/pi/Langstone/stop_both /home/pi/Langstone/stop
+    break
+  fi
+
+done
+
+
+  
