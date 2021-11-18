@@ -102,7 +102,7 @@ chmod +x install_hyperpixel4.sh
 ./install_hyperpixel4.sh
 ```
 
-The initial build can take some time, however it does not need any user input until the very end, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will ask if you will be using the Adalm Pluto, Lime SDR or if you want to be able to use both. It will then reboot and start-up with the Langstone Transceiver. If you have selected to use bothe the Lime and the Pluto you will be presented with a touch screen selection menu on booting.  Note that sometimes the first reboot does not start correctly. Just recyle the power and try again. If it still does not appear to be working then see the file 'Debugging Notes.txt' and the Langstone wiki for some things to look at.
+The initial build can take some time, however it does not need any user input until the very end, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will ask if you will be using the Adalm Pluto, Lime SDR or if you want to be able to use both. It will then reboot and start-up with the Langstone Transceiver. If you have selected to use both the Lime and the Pluto you will be presented with a touch screen selection menu on booting.  Note that sometimes the first reboot does not start correctly. Just recyle the power and try again. If it still does not appear to be working then see the file 'Debugging Notes.txt' and the Langstone wiki for some things to look at.
 
 # Updating the Software. 
 
