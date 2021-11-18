@@ -139,7 +139,6 @@ chmod +x stop_lime
 chmod +x run_pluto
 chmod +x stop_pluto
 chmod +x update
-chmod +x update-dev
 chmod +x set_pluto
 chmod +x set_sdr
 chmod +x set_sound
@@ -173,7 +172,7 @@ fi
 sudo sed -i '/dtoverlay=vc4-fkms-v3d/s/^/#/' /boot/config.txt
 
 cd ~
-cd Langstone-V2
+cd Langstone
 ./set_sdr
 
 echo "#################################"

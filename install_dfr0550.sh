@@ -138,7 +138,6 @@ chmod +x stop_lime
 chmod +x run_pluto
 chmod +x stop_pluto
 chmod +x update
-chmod +x update-dev
 chmod +x set_pluto
 chmod +x set_sdr
 chmod +x set_sound
