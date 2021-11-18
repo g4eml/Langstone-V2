@@ -33,3 +33,5 @@ else
    echo Langstone is already running. Use ./stop first.
    sleep 5
 fi
+
+sudo cp /home/pi/Langstone/splash.bgra /dev/fb0

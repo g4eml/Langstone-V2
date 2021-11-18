@@ -15,3 +15,4 @@ do
   fi
 done
 
+sudo cp /home/pi/Langstone/splash.bgra /dev/fb0

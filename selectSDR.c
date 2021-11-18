@@ -15,13 +15,17 @@ int hyperPixelPresent;
 char mousePath[20];
 char touchPath[20];
 
-#define limeButtonX 450
+#define limeButtonX 0
 #define limeButtonY 250
-#define plutoButtonX 60
+#define exitButtonX 266
+#define exitButtonY 250
+#define plutoButtonX 533
 #define plutoButtonY 250
 
+
+
 #define buttonHeight 200
-#define buttonWidth 300
+#define buttonWidth 266
 
 int exitValue;
 
@@ -31,7 +35,7 @@ int main(int argc, char* argv[])
   initScreen();
   if(touchPresent) initTouch(touchPath);
   initGUI();
-  exitValue=0;
+  exitValue=-1;
   
   while(1)
   {
@@ -44,7 +48,7 @@ int main(int argc, char* argv[])
         }
      }
      
-     if(exitValue >0)
+     if(exitValue != -1)
      {
          exit(exitValue);
      }
@@ -153,6 +157,12 @@ if(buttonTouched(limeButtonX,limeButtonY))    //Lime
  if(buttonTouched(plutoButtonX,plutoButtonY))    //Pluto
     {
       exitValue=92;
+      return;
+    }
+ 
+ if(buttonTouched(exitButtonX,exitButtonY))    //Exit
+    {
+      exitValue=0;
       return;
     }
                                                       
