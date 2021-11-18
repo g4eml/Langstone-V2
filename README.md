@@ -1,5 +1,7 @@
 # Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
 
+# Note:- This V2 version is still under development. It may not work correctly.
+
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
 
 It was inspired by the very successful Portsdown Amateur Television system created by the British Amateur Television Club.
