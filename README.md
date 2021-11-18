@@ -1,4 +1,6 @@
-# Langstone SDR Transceiver by Colin Durbridge G4EML
+# Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
+
+# Note:- This V2 version is still under development. It may not work correctly.
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
 
@@ -14,7 +16,7 @@ Currently only the following hardware is supported:-
 
 - Official Raspberry Pi 7" touchscreen, DFRobot DFR0550 5" Touchscreen or Pimoroni Hyperpixel4 4" Touchscreen
 
-- Adalm Pluto SDR Module
+- Adalm Pluto SDR Module or Lime SDR Mini
 
 - USB Audio module. Connected to loudspeaker or headphones and microphone. 
  
@@ -78,7 +80,7 @@ The preferred installation method only needs a Windows PC connected to the same 
 # For the 7" Raspberry Pi Display:-
 
 ```sh
-wget https://raw.githubusercontent.com/g4eml/Langstone/master/install.sh
+wget https://raw.githubusercontent.com/g4eml/Langstone-V2/master/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -86,7 +88,7 @@ chmod +x install.sh
 # For the 5" DFR0550 Display:-
 
 ```sh
-wget https://raw.githubusercontent.com/g4eml/Langstone/master/install_dfr0550.sh
+wget https://raw.githubusercontent.com/g4eml/Langstone-V2/master/install_dfr0550.sh
 chmod +x install_dfr0550.sh
 ./install_dfr0550.sh
 ```
@@ -94,17 +96,9 @@ chmod +x install_dfr0550.sh
 # For the 4" Hyperpixel4 Display:-
 
 ```sh
-wget https://raw.githubusercontent.com/g4eml/Langstone/master/install_hyperpixel4.sh
+wget https://raw.githubusercontent.com/g4eml/Langstone-V2/master/install_hyperpixel4.sh
 chmod +x install_hyperpixel4.sh
 ./install_hyperpixel4.sh
-```
-
-#  To build the development version for the 7" Raspberry Pi Display (Not Guaranteed to work. For testing only):-
-
-```sh
-wget https://raw.githubusercontent.com/g4eml/Langstone/Dev/install_Dev.sh
-chmod +x install_Dev.sh
-./install_Dev.sh
 ```
 
 The initial build can take some time, however it does not need any user input, so go and make a cup of coffee and keep an eye on the touchscreen.  When the build is finished the Pi will reboot and start-up with the Langstone Transceiver. Note that sometimes the first reboot does not start correctly. Just recyle the power and try again. If it still does not appear to be working then see the file 'Debugging Notes.txt' and the Langstone wiki for some things to look at.
