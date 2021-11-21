@@ -2277,8 +2277,8 @@ void setTx(int pt)
       
       sendFifo("R");
       sendFifo("U0");                  //unmute the receiver
-      setHwTxFreq(freq+10.0);           //offset the Tx freq to prevent unwanted spurious
       LimeTxEnable(0);
+      setHwTxFreq(freq+10.0);           //offset the Tx freq to prevent unwanted spurious
       setHwRxFreq(freq);
       if((mode==FM)&&(bandDuplex[band]==1))
         {
