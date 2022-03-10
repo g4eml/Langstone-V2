@@ -2306,6 +2306,16 @@ void setHwRxFreq(double fr)
   
   frRx=fr+bandRxOffset[band];
   
+    
+  if(frRx > maxHwFreq)
+  {
+  frRx = maxHwFreq;
+  }
+  if(frRx < minHwFreq)
+  {
+  frRx = minHwFreq;
+  }
+  
   rxfreqhz=frRx*1000000;
 
   rxoffsethz=(rxfreqhz % 100000)+50000;        //use just the +50Khz to +150Khz positive side of the sampled spectrum. This avoids seeing the DC hump .
@@ -2339,6 +2349,15 @@ void setHwTxFreq(double fr)
   double frTx;
   
   frTx=fr+bandTxOffset[band];
+  
+  if(frTx > maxHwFreq)
+  {
+  frTx = maxHwFreq;
+  }
+  if(frTx < minHwFreq)
+  {
+  frTx = minHwFreq;
+  }
   
   if((mode==FM)&&(bandDuplex[band]==1))
     {
@@ -2678,6 +2697,16 @@ void changeSetting(void)
         bandRxOffset[band]=bandRxOffset[band]+mouseScroll*freqInc;
         if(bandRxOffset[band] > 99999.9) bandRxOffset[band]= 99999.9;
         if(bandRxOffset[band] < -99999.9) bandRxOffset[band]= -99999.9;
+        
+        if((freq + bandRxOffset[band]) > maxHwFreq )
+        {
+          freq = freq - ((freq + bandRxOffset[band]) - maxHwFreq); 
+        }
+        
+        if((freq + bandRxOffset[band]) < minHwFreq )
+        {
+          freq = freq + ( minHwFreq - (freq + bandRxOffset[band])); 
+        }      
         mouseScroll=0;
         setFreq(freq);
         displaySetting(settingNo);
@@ -2701,6 +2730,17 @@ void changeSetting(void)
         bandTxOffset[band]=bandTxOffset[band]+mouseScroll*freqInc;
         if(bandTxOffset[band] > 99999.9) bandTxOffset[band]= 99999.9;
         if(bandTxOffset[band] < -99999.9) bandTxOffset[band]= -99999.9;
+        
+        if((freq + bandTxOffset[band]) > maxHwFreq )
+        {
+          freq = freq - ((freq + bandTxOffset[band]) - maxHwFreq); 
+        }
+        
+        if((freq + bandTxOffset[band]) < minHwFreq )
+        {
+          freq = freq + ( minHwFreq - (freq + bandTxOffset[band])); 
+        }
+        
         mouseScroll=0;
         setFreq(freq);
         displaySetting(settingNo);
