@@ -2868,9 +2868,10 @@ void changeSetting(void)
       }  
    if(settingNo==RX_OFFSET)        //Transverter Rx Offset 
       {
-        bandRxOffset[band]=bandRxOffset[band]+mouseScroll*freqInc;
+        bandRxOffset[band]=bandRxOffset[band]-mouseScroll*freqInc;
         if(bandRxOffset[band] > 99999.9) bandRxOffset[band]= 99999.9;
         if(bandRxOffset[band] < -99999.9) bandRxOffset[band]= -99999.9;
+        freq=freq+mouseScroll*freqInc;
         if((freq + bandRxOffset[band]) > maxHwFreq )
         {
           freq = freq - ((freq + bandRxOffset[band]) - maxHwFreq); 
@@ -2901,10 +2902,12 @@ void changeSetting(void)
       }    
    if(settingNo==TX_OFFSET)        //Transverter Tx Offset
       {
-        bandTxOffset[band]=bandTxOffset[band]+mouseScroll*freqInc;
+        bandTxOffset[band]=bandTxOffset[band]-mouseScroll*freqInc;
         if(bandTxOffset[band] > 99999.9) bandTxOffset[band]= 99999.9;
         if(bandTxOffset[band] < -99999.9) bandTxOffset[band]= -99999.9;
-        
+ 
+        freq=freq+mouseScroll*freqInc;
+  
         if((freq + bandTxOffset[band]) > maxHwFreq )
         {
           freq = freq - ((freq + bandTxOffset[band]) - maxHwFreq); 
