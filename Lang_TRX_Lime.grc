@@ -120,6 +120,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(464, 644)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>AMMIC</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>5</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(1136, 644)</value>
     </param>
     <param>
@@ -591,70 +618,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>analog_agc2_xx</key>
-    <param>
-      <key>attack_rate</key>
-      <value>1e-1</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>decay_rate</key>
-      <value>1e-1</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(888, 1008)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>gain</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>analog_agc2_xx_1</value>
-    </param>
-    <param>
-      <key>max_gain</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>reference</key>
-      <value>1.3- (0.65*(int(Tx_Mode==5)))</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
+      <value>5</value>
     </param>
   </block>
   <block>
@@ -992,6 +956,53 @@
     </param>
   </block>
   <block>
+    <key>analog_rail_ff</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(568, 916)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>hi</key>
+      <value>0.99</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>analog_rail_ff_0_0</value>
+    </param>
+    <param>
+      <key>lo</key>
+      <value>-0.99</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>analog_sig_source_x</key>
     <param>
       <key>amp</key>
@@ -1019,7 +1030,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(544, 1128)</value>
+      <value>(648, 1128)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1188,7 +1199,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 852)</value>
+      <value>(0, 852)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1330,7 +1341,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 980)</value>
+      <value>(1024, 980)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1409,7 +1420,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(624, 772)</value>
+      <value>(600, 724)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1468,7 +1479,7 @@
     </param>
     <param>
       <key>const</key>
-      <value>(0.5 * int(Tx_Mode==5)) + (int(Tx_Mode==2) * KEY) +(int(Tx_Mode==3) * KEY)</value>
+      <value>(0.5 * int(Tx_Mode==5)) + int(Tx_Mode==2) +int(Tx_Mode==3)</value>
     </param>
     <param>
       <key>affinity</key>
@@ -1480,7 +1491,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(672, 1012)</value>
+      <value>(408, 916)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1492,7 +1503,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>complex</value>
+      <value>float</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1527,7 +1538,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 808)</value>
+      <value>(384, 808)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1903,7 +1914,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 1008)</value>
+      <value>(640, 1008)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1938,7 +1949,7 @@
     </param>
     <param>
       <key>const</key>
-      <value>(MicGain/10.0)*(not (Tx_Mode==2))*(not (Tx_Mode==3))</value>
+      <value>(MicGain)*(int(Tx_Mode==0)) + (MicGain)*(int(Tx_Mode==1)) + (AMMIC/10.0)*(int(Tx_Mode==5)) </value>
     </param>
     <param>
       <key>affinity</key>
@@ -1950,7 +1961,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 916)</value>
+      <value>(248, 916)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2001,7 +2012,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(224, 828)</value>
+      <value>(224, 836)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2307,7 +2318,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1008, 820)</value>
+      <value>(1072, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2405,7 +2416,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 1024)</value>
+      <value>(872, 1024)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2456,7 +2467,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1648, 992)</value>
+      <value>(1472, 992)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2480,7 +2491,7 @@
     </param>
     <param>
       <key>mute</key>
-      <value>not PTT</value>
+      <value>(not PTT) or (Tx_Mode==2 and not KEY) or (Tx_Mode==3 and not KEY)</value>
     </param>
   </block>
   <block>
@@ -2716,7 +2727,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1808, 928)</value>
+      <value>(1816, 928)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3048,7 +3059,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1472, 968)</value>
+      <value>(1616, 976)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3079,12 +3090,6 @@
       <value>ccc</value>
     </param>
   </block>
-  <connection>
-    <source_block_id>analog_agc2_xx_1</source_block_id>
-    <sink_block_id>band_pass_filter_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
   <connection>
     <source_block_id>analog_agc3_xx_0</source_block_id>
     <sink_block_id>blocks_complex_to_real_0_0</sink_block_id>
@@ -3118,6 +3123,12 @@
   <connection>
     <source_block_id>analog_rail_ff_0</source_block_id>
     <sink_block_id>band_pass_filter_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>analog_rail_ff_0_0</source_block_id>
+    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3177,7 +3188,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_add_const_vxx_0</source_block_id>
-    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
+    <sink_block_id>analog_rail_ff_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3201,13 +3212,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_add_xx_2</source_block_id>
-    <sink_block_id>logpwrfft_x_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_add_xx_2</source_block_id>
-    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
+    <sink_block_id>blocks_mute_xx_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3237,13 +3242,13 @@
   </connection>
   <connection>
     <source_block_id>blocks_float_to_complex_0_0</source_block_id>
-    <sink_block_id>blocks_add_const_vxx_0</sink_block_id>
+    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_multiply_const_vxx_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
+    <sink_block_id>blocks_add_const_vxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3297,13 +3302,19 @@
   </connection>
   <connection>
     <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>analog_agc2_xx_1</sink_block_id>
+    <sink_block_id>band_pass_filter_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>blocks_mute_xx_0_0</source_block_id>
-    <sink_block_id>limesdr_sink_0</sink_block_id>
+    <sink_block_id>logpwrfft_x_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_mute_xx_0_0</source_block_id>
+    <sink_block_id>rational_resampler_xxx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3339,7 +3350,7 @@
   </connection>
   <connection>
     <source_block_id>rational_resampler_xxx_0</source_block_id>
-    <sink_block_id>blocks_mute_xx_0_0</sink_block_id>
+    <sink_block_id>limesdr_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

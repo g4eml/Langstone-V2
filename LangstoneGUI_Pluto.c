@@ -36,6 +36,7 @@ void setVolume(int vol);
 void setSquelch(int sql);
 void setSSBMic(int mic);
 void setFMMic(int mic);
+void setAMMic(int mic);
 void setRxFilter(int low,int high);
 void setTxFilter(int low,int high);
 void setBandBits(int b);
@@ -130,10 +131,10 @@ int lastmode=0;
 char * modename[nummode]={"USB","LSB","CW ","CWN","FM ","AM "};
 enum {USB,LSB,CW,CWN,FM,AM};
 
-#define numSettings 19
+#define numSettings 20
 
-char * settingText[numSettings]={"Rx Gain= ","SSB Mic Gain= ","FM Mic Gain= ","Repeater Shift= "," Rx Offset= ","Rx Harmonic Mixing= "," Tx Offset= ","Tx Harmonic Mixing= ","Band Bits (Rx)= ","Band Bits (Tx)= ","Copy Band Bits to Pluto=","FFT Ref= ","Tx Att= ","S-Meter Zero= ", "SSB Rx Filter Low= ", "SSB Rx Filter High= ","CW Ident= ", "CWID Carrier= ", "CW Break-In Hang Time= "};
-enum {RX_GAIN,SSB_MIC,FM_MIC,REP_SHIFT,RX_OFFSET,RX_HARMONIC,TX_OFFSET,TX_HARMONIC,BAND_BITS_RX,BAND_BITS_TX,BAND_BITS_TO_PLUTO,FFT_REF,TX_ATT,S_ZERO,SSB_FILT_LOW,SSB_FILT_HIGH,CWID,CW_CARRIER,BREAK_IN_TIME};
+char * settingText[numSettings]={"Rx Gain= ","SSB Mic Gain= ","FM Mic Gain= ","AM Mic Gain= ","Repeater Shift= "," Rx Offset= ","Rx Harmonic Mixing= "," Tx Offset= ","Tx Harmonic Mixing= ","Band Bits (Rx)= ","Band Bits (Tx)= ","Copy Band Bits to Pluto=","FFT Ref= ","Tx Att= ","S-Meter Zero= ", "SSB Rx Filter Low= ", "SSB Rx Filter High= ","CW Ident= ", "CWID Carrier= ", "CW Break-In Hang Time= "};
+enum {RX_GAIN,SSB_MIC,FM_MIC,AM_MIC,REP_SHIFT,RX_OFFSET,RX_HARMONIC,TX_OFFSET,TX_HARMONIC,BAND_BITS_RX,BAND_BITS_TX,BAND_BITS_TO_PLUTO,FFT_REF,TX_ATT,S_ZERO,SSB_FILT_LOW,SSB_FILT_HIGH,CWID,CW_CARRIER,BREAK_IN_TIME};
 int settingNo=RX_GAIN;
 int setIndex=0;
 int maxSetIndex=10;
@@ -229,6 +230,9 @@ int SSBMic=50;
 
 int FMMic=50;
 #define maxFMMic 100
+
+int AMMic=20;
+#define maxAMMic 100
 
 int TxAtt=0;
 
@@ -1351,6 +1355,7 @@ void initSDR(void)
   setRit(0);
   setSSBMic(SSBMic);
   setFMMic(FMMic);
+  setAMMic(AMMic);
   setFreqInc();
   lastLOhz=0;
   setFreq(freq);
@@ -2232,6 +2237,13 @@ void setFMMic(int mic)
   sendFifo(micStr);
 }
 
+void setAMMic(int mic)
+{
+  char micStr[10];
+  sprintf(micStr,"d%d",mic);
+  sendFifo(micStr);
+}
+
 void setKey(int k)
 {
   char kStr[5];
@@ -2859,6 +2871,15 @@ void changeSetting(void)
       setFMMic(FMMic);
       displaySetting(settingNo);
       }
+   if(settingNo==AM_MIC)        // AM Mic Gain
+      {
+      AMMic=AMMic+mouseScroll;
+      mouseScroll=0;
+      if(AMMic<0) AMMic=0;
+      if(AMMic>maxAMMic) AMMic=maxAMMic;
+      setAMMic(AMMic);
+      displaySetting(settingNo);
+      }
     if(settingNo==REP_SHIFT)        //Repeater Shift
       {
         bandRepShift[band]=bandRepShift[band]+mouseScroll*freqInc;
@@ -3213,6 +3234,11 @@ void displaySetting(int se)
   sprintf(valStr,"%d",FMMic);
   displayStr(valStr);
   }
+ if(se==AM_MIC)
+  {
+  sprintf(valStr,"%d",AMMic);
+  displayStr(valStr);
+  } 
 if(se==REP_SHIFT)
   {
   sprintf(valStr,"%.5f",bandRepShift[band]);
@@ -3476,6 +3502,7 @@ while(fscanf(conffile,"%49s %99s [^\n]\n",variable,value) !=EOF)
     if(strstr(variable,"mode")) sscanf(value,"%d",&mode);
     if(strstr(variable,"SSBMic")) sscanf(value,"%d",&SSBMic);
     if(strstr(variable,"FMMic")) sscanf(value,"%d",&FMMic);
+    if(strstr(variable,"AMMic")) sscanf(value,"%d",&AMMic);
     if(strstr(variable,"volume")) sscanf(value,"%d",&volume);
     if(strstr(variable,"breakInTime")) sscanf(value,"%d",&breakInTime);
     if(strstr(variable,"bandBitsToPluto")) sscanf(value,"%d",&bandBitsToPluto);
@@ -3542,6 +3569,7 @@ fprintf(conffile,"tuneDigit %d\n",tuneDigit);
 fprintf(conffile,"mode %d\n",mode);
 fprintf(conffile,"SSBMic %d\n",SSBMic);
 fprintf(conffile,"FMMic %d\n",FMMic);
+fprintf(conffile,"AMMic %d\n",AMMic);
 fprintf(conffile,"volume %d\n",volume);
 fprintf(conffile,"breakInTime %d\n",breakInTime);
 fprintf(conffile,"bandBitsToPluto %d\n",bandBitsToPluto);
