@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Lang Trx
-# Generated: Sun Nov 14 21:46:55 2021
+# Title: Lang Trx Lime
+# Generated: Mon Mar 21 15:23:48 2022
 ##################################################
+
 import os
 import errno
 from gnuradio import analog
@@ -20,15 +21,15 @@ from optparse import OptionParser
 import limesdr
 
 
-class Lang_TRX(gr.top_block):
+class Lang_TRX_Lime(gr.top_block):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Lang Trx")
+        gr.top_block.__init__(self, "Lang Trx Lime")
 
         ##################################################
         # Variables
         ##################################################
-        self.Tx_Mode = Tx_Mode = 0
+        self.Tx_Mode = Tx_Mode = 5
         self.Tx_LO = Tx_LO = 1000000000
         self.Tx_Gain = Tx_Gain = 60
         self.Tx_Filt_Low = Tx_Filt_Low = 300
@@ -46,6 +47,7 @@ class Lang_TRX(gr.top_block):
         self.MicGain = MicGain = 5.0
         self.KEY = KEY = False
         self.FMMIC = FMMIC = 50
+        self.AMMIC = AMMIC = 5
         self.AFGain = AFGain = 20
 
         ##################################################
@@ -92,7 +94,7 @@ class Lang_TRX(gr.top_block):
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(11, (firdes.low_pass(1,529200,23000,2000)), RxOffset, 528000)
         self.blocks_udp_sink_0_0 = blocks.udp_sink(gr.sizeof_float*512, '127.0.0.1', 7474, 1472, False)
         self.blocks_udp_sink_0 = blocks.udp_sink(gr.sizeof_float*512, '127.0.0.1', 7373, 1472, False)
-        self.blocks_mute_xx_0_0 = blocks.mute_cc(bool(not PTT))
+        self.blocks_mute_xx_0_0 = blocks.mute_cc(bool((not PTT) or (Tx_Mode==2 and not KEY) or (Tx_Mode==3 and not KEY)))
         self.blocks_multiply_xx_0 = blocks.multiply_vcc(1)
         self.blocks_multiply_const_vxx_4 = blocks.multiply_const_vcc(((Tx_Mode < 4) or (Tx_Mode==5), ))
         self.blocks_multiply_const_vxx_3 = blocks.multiply_const_vcc((Tx_Mode==4, ))
@@ -102,7 +104,7 @@ class Lang_TRX(gr.top_block):
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_vff((Rx_Mode<4, ))
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vff(((AFGain/100.0) *  (not Rx_Mute), ))
         self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_vff((FMMIC/5.0, ))
-        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff(((MicGain/10.0)*(not (Tx_Mode==2))*(not (Tx_Mode==3)), ))
+        self.blocks_multiply_const_vxx_0 = blocks.multiply_const_vff(((MicGain)*(int(Tx_Mode==0)) + (MicGain)*(int(Tx_Mode==1)) + (AMMIC/10.0)*(int(Tx_Mode==5)) , ))
         self.blocks_float_to_complex_0_0 = blocks.float_to_complex(1)
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_complex_to_real_0_0 = blocks.complex_to_real(1)
@@ -112,7 +114,7 @@ class Lang_TRX(gr.top_block):
         self.blocks_add_xx_1_0 = blocks.add_vff(1)
         self.blocks_add_xx_1 = blocks.add_vff(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
-        self.blocks_add_const_vxx_0 = blocks.add_const_vcc(((0.5 * int(Tx_Mode==5)) + (int(Tx_Mode==2) * KEY) +(int(Tx_Mode==3) * KEY), ))
+        self.blocks_add_const_vxx_0 = blocks.add_const_vff(((0.5 * int(Tx_Mode==5)) + int(Tx_Mode==2) +int(Tx_Mode==3), ))
         self.band_pass_filter_1 = filter.fir_filter_fff(1, firdes.band_pass(
         	1, 48000, 200, 3500, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
@@ -123,6 +125,7 @@ class Lang_TRX(gr.top_block):
         self.audio_sink_0 = audio.sink(48000, "hw:CARD=Device,DEV=0", False)
         self.analog_sig_source_x_1 = analog.sig_source_f(48000, analog.GR_COS_WAVE, 1750, 1.0*ToneBurst, 0)
         self.analog_sig_source_x_0 = analog.sig_source_c(48000, analog.GR_COS_WAVE, 0, 1, 0)
+        self.analog_rail_ff_0_0 = analog.rail_ff(-0.99, 0.99)
         self.analog_rail_ff_0 = analog.rail_ff(-1, 1)
         self.analog_pwr_squelch_xx_0 = analog.pwr_squelch_cc(SQL-100, 0.001, 0, False)
         self.analog_nbfm_tx_0 = analog.nbfm_tx(
@@ -141,19 +144,17 @@ class Lang_TRX(gr.top_block):
         self.analog_const_source_x_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.analog_agc3_xx_0 = analog.agc3_cc(1e-2, 5e-7, 0.1, 1.0, 1)
         self.analog_agc3_xx_0.set_max_gain(1000)
-        self.analog_agc2_xx_1 = analog.agc2_cc(1e-1, 1e-1, 1.3- (0.65*(int(Tx_Mode==5))), 1.0)
-        self.analog_agc2_xx_1.set_max_gain(10)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_agc2_xx_1, 0), (self.band_pass_filter_0_0, 0))
         self.connect((self.analog_agc3_xx_0, 0), (self.blocks_complex_to_real_0_0, 0))
         self.connect((self.analog_const_source_x_0, 0), (self.blocks_float_to_complex_0_0, 1))
         self.connect((self.analog_nbfm_rx_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.analog_nbfm_tx_0, 0), (self.blocks_multiply_const_vxx_3, 0))
         self.connect((self.analog_pwr_squelch_xx_0, 0), (self.analog_nbfm_rx_0, 0))
         self.connect((self.analog_rail_ff_0, 0), (self.band_pass_filter_1, 0))
+        self.connect((self.analog_rail_ff_0_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
@@ -163,18 +164,17 @@ class Lang_TRX(gr.top_block):
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.band_pass_filter_0_0, 0), (self.blocks_multiply_const_vxx_4, 0))
         self.connect((self.band_pass_filter_1, 0), (self.analog_nbfm_tx_0, 0))
-        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.analog_rail_ff_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_rail_ff_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_add_xx_1_0, 0), (self.blocks_float_to_complex_0, 0))
-        self.connect((self.blocks_add_xx_2, 0), (self.logpwrfft_x_0_0, 0))
-        self.connect((self.blocks_add_xx_2, 0), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.blocks_add_xx_2, 0), (self.blocks_mute_xx_0_0, 0))
         self.connect((self.blocks_complex_to_mag_0, 0), (self.blocks_multiply_const_vxx_2_1, 0))
         self.connect((self.blocks_complex_to_real_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_complex_to_real_0_0, 0), (self.blocks_multiply_const_vxx_2_1_0, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.analog_agc3_xx_0, 0))
-        self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_add_const_vxx_0, 0))
-        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_float_to_complex_0_0, 0))
+        self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.blocks_multiply_const_vxx_1, 0), (self.audio_sink_0, 0))
         self.connect((self.blocks_multiply_const_vxx_2, 0), (self.blocks_add_xx_1_0, 0))
@@ -183,25 +183,26 @@ class Lang_TRX(gr.top_block):
         self.connect((self.blocks_multiply_const_vxx_2_1_0, 0), (self.blocks_add_xx_1, 0))
         self.connect((self.blocks_multiply_const_vxx_3, 0), (self.blocks_add_xx_2, 0))
         self.connect((self.blocks_multiply_const_vxx_4, 0), (self.blocks_add_xx_2, 1))
-        self.connect((self.blocks_multiply_xx_0, 0), (self.analog_agc2_xx_1, 0))
-        self.connect((self.blocks_mute_xx_0_0, 0), (self.limesdr_sink_0, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.band_pass_filter_0_0, 0))
+        self.connect((self.blocks_mute_xx_0_0, 0), (self.logpwrfft_x_0_0, 0))
+        self.connect((self.blocks_mute_xx_0_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.band_pass_filter_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.logpwrfft_x_0, 0))
         self.connect((self.limesdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.logpwrfft_x_0, 0), (self.blocks_udp_sink_0, 0))
         self.connect((self.logpwrfft_x_0_0, 0), (self.blocks_udp_sink_0_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_mute_xx_0_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.limesdr_sink_0, 0))
 
     def get_Tx_Mode(self):
         return self.Tx_Mode
 
     def set_Tx_Mode(self, Tx_Mode):
         self.Tx_Mode = Tx_Mode
+        self.blocks_mute_xx_0_0.set_mute(bool((not self.PTT) or (self.Tx_Mode==2 and not self.KEY) or (self.Tx_Mode==3 and not self.KEY)))
         self.blocks_multiply_const_vxx_4.set_k(((self.Tx_Mode < 4) or (self.Tx_Mode==5), ))
         self.blocks_multiply_const_vxx_3.set_k((self.Tx_Mode==4, ))
-        self.blocks_multiply_const_vxx_0.set_k(((self.MicGain/10.0)*(not (self.Tx_Mode==2))*(not (self.Tx_Mode==3)), ))
-        self.blocks_add_const_vxx_0.set_k(((0.5 * int(self.Tx_Mode==5)) + (int(self.Tx_Mode==2) * self.KEY) +(int(self.Tx_Mode==3) * self.KEY), ))
-        self.analog_agc2_xx_1.set_reference(1.3- (0.65*(int(self.Tx_Mode==5))))
+        self.blocks_multiply_const_vxx_0.set_k(((self.MicGain)*(int(self.Tx_Mode==0)) + (self.MicGain)*(int(self.Tx_Mode==1)) + (self.AMMIC/10.0)*(int(self.Tx_Mode==5)) , ))
+        self.blocks_add_const_vxx_0.set_k(((0.5 * int(self.Tx_Mode==5)) + int(self.Tx_Mode==2) +int(self.Tx_Mode==3), ))
 
     def get_Tx_LO(self):
         return self.Tx_LO
@@ -302,21 +303,21 @@ class Lang_TRX(gr.top_block):
 
     def set_PTT(self, PTT):
         self.PTT = PTT
-        self.blocks_mute_xx_0_0.set_mute(bool(not self.PTT))
+        self.blocks_mute_xx_0_0.set_mute(bool((not self.PTT) or (self.Tx_Mode==2 and not self.KEY) or (self.Tx_Mode==3 and not self.KEY)))
 
     def get_MicGain(self):
         return self.MicGain
 
     def set_MicGain(self, MicGain):
         self.MicGain = MicGain
-        self.blocks_multiply_const_vxx_0.set_k(((self.MicGain/10.0)*(not (self.Tx_Mode==2))*(not (self.Tx_Mode==3)), ))
+        self.blocks_multiply_const_vxx_0.set_k(((self.MicGain)*(int(self.Tx_Mode==0)) + (self.MicGain)*(int(self.Tx_Mode==1)) + (self.AMMIC/10.0)*(int(self.Tx_Mode==5)) , ))
 
     def get_KEY(self):
         return self.KEY
 
     def set_KEY(self, KEY):
         self.KEY = KEY
-        self.blocks_add_const_vxx_0.set_k(((0.5 * int(self.Tx_Mode==5)) + (int(self.Tx_Mode==2) * self.KEY) +(int(self.Tx_Mode==3) * self.KEY), ))
+        self.blocks_mute_xx_0_0.set_mute(bool((not self.PTT) or (self.Tx_Mode==2 and not self.KEY) or (self.Tx_Mode==3 and not self.KEY)))
 
     def get_FMMIC(self):
         return self.FMMIC
@@ -324,6 +325,13 @@ class Lang_TRX(gr.top_block):
     def set_FMMIC(self, FMMIC):
         self.FMMIC = FMMIC
         self.blocks_multiply_const_vxx_0_0.set_k((self.FMMIC/5.0, ))
+
+    def get_AMMIC(self):
+        return self.AMMIC
+
+    def set_AMMIC(self, AMMIC):
+        self.AMMIC = AMMIC
+        self.blocks_multiply_const_vxx_0.set_k(((self.MicGain)*(int(self.Tx_Mode==0)) + (self.MicGain)*(int(self.Tx_Mode==1)) + (self.AMMIC/10.0)*(int(self.Tx_Mode==5)) , ))
 
     def get_AFGain(self):
         return self.AFGain
@@ -399,6 +407,9 @@ def docommands(tb):
            if line[0]=='g':
               value=int(line[1:])
               tb.set_FMMIC(value)
+           if line[0]=='d':
+              value=int(line[1:])
+              tb.set_AMMIC(value)
            if line[0]=='f':
               value=int(line[1:])
               tb.set_Tx_Filt_High(value) 
@@ -415,7 +426,7 @@ def docommands(tb):
        except:
          break
 
-def main(top_block_cls=Lang_TRX, options=None):
+def main(top_block_cls=Lang_TRX_Lime, options=None):
 
     tb = top_block_cls()
     tb.start()

@@ -105,6 +105,9 @@ def docommands(tb):
            if line[0]=='g':
               value=int(line[1:])
               tb.set_FMMIC(value)
+           if line[0]=='d':
+              value=int(line[1:])
+              tb.set_AMMIC(value)
            if line[0]=='f':
               value=int(line[1:])
               tb.set_Tx_Filt_High(value) 
