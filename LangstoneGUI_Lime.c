@@ -16,6 +16,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <lime/LimeSuite.h>
+#include <lime/limeRFE.h>
 
 const char *i2cNode1 = "/dev/i2c-1";        //linux i2c node for the Hyperpixel display on Pi 4
 const char *i2cNode2 = "/dev/i2c-11";       //linux i2c node for the Hyperpixel display on Pi 4
@@ -82,6 +84,12 @@ void displayPopupBand(void);
 void send1750(void);
 void displayError(char*st);
 void flushUDP(void);
+void initRFE(void);
+void configureRFE(double Freq);
+void RFERX();
+void RFETX();
+void RFEClose();
+
 
 int minGain(double freq);
 int maxGain(double freq);
@@ -245,6 +253,9 @@ int touchPresent;
 int portsdownPresent;
 int hyperPixelPresent;
 int MCP23017Present;
+int LimeRFEPresent;
+
+rfe_dev_t* rfe = NULL;    // handle for LimeRFE
 
 int popupSel=0;
 int popupFirstBand;
@@ -809,6 +820,7 @@ void detectHw()
   mousePresent=0;
   touchPresent=0;
   portsdownPresent=0;
+  LimeRFEPresent=0;
   fp=fopen("/proc/bus/input/devices","r");
    while ((rd=getline(&ln,&len,fp)!=-1))
     {
@@ -870,6 +882,9 @@ void detectHw()
 // try to initialise MCP23017 i2c chip for additonal I/O
 // this will set or reset MCP23017Present flag 
   initMCP23017(mcp23017_addr);
+  
+//try to initialise the Lime RFE. This will set or clear the LimeRFEPresent flag
+  initRFE();  
 }
 
 void displayError(char*st)
@@ -1123,6 +1138,181 @@ void initMCP23017(int add)
  mcp23017_writeport(add,GPIOB,0);             //Zero all outputs 
  MCP23017Present=1;
 }
+
+//initialise the Lime RFE if it is present.   (code taken from Portsdown Thanks Dave!)
+void initRFE(void)
+{     
+  FILE *fp;
+  char response[127];
+
+  // List the ttyUSBs (should return /dev/ttyUSB0)
+  fp = popen("ls --format=single-column /dev/ttyUSB*", "r");
+  if (fp == NULL)
+  {
+    printf("Failed to run command ls --format=single-column /dev/ttyUSB* \n" );
+    return;
+  }
+
+  LimeRFEPresent=0;
+  // Read the output a line at a time and see if it works
+  while ((fgets(response, 16, fp) != NULL)  && (rfe == NULL))
+  {
+    response[strcspn(response, "\n")] = 0;                 // strip off the trailing \n
+    printf("Attempting to open %s for LimeRFE\n", response);
+    rfe = RFE_Open(response, NULL);
+    if (rfe != NULL)
+    {
+      printf("RFE on %s opened\n", response);
+      LimeRFEPresent=1;
+    }
+  }
+
+  // Close the File
+  pclose(fp);
+
+}
+
+
+int getRFEBand(double Freq)
+{                                                                              
+
+ if (Freq <= 45)
+    {
+      return 3;      // HAM_0030
+    }
+    else if ((Freq > 45) && (Freq <= 85))
+    {
+      return 4;      // HAM_0070
+    }
+    else if ((Freq > 85) && (Freq <= 140))
+    {
+      return 1;      // WB_1000
+    }
+    else if ((Freq > 140) && (Freq <= 150))
+    {
+      return 5;      // HAM_0145
+    }
+    else if ((Freq > 150) && (Freq <= 190))
+    {
+      return 1;      // WB_1000
+    }
+    else if ((Freq > 190) && (Freq <= 260))
+    {
+      return 6;      // HAM_0220
+    }
+    else if ((Freq > 260) && (Freq <= 400))
+    {
+      return 1;      // WB_1000
+    }
+    else if ((Freq > 400) && (Freq <= 500))
+    {
+      return 7;      // HAM_0435
+    }
+    else if ((Freq > 500) && (Freq <= 900))
+    {
+      return 1;      // WB_1000
+    }
+    else if ((Freq > 900) && (Freq <= 930))
+    {
+      return 8;      // HAM_0920
+    }
+    else if ((Freq > 930) && (Freq <= 1000))
+    {
+      return 1;      // WB_1000
+    }
+    else if ((Freq > 1000) && (Freq <= 1200))
+    {
+      return 2;      // WB_4000
+    }
+    else if ((Freq > 1200) && (Freq <= 1500))
+    {
+      return 9;      // HAM_1280
+    }
+    else if ((Freq > 1500) && (Freq <= 2200))
+    {
+      return 2;      // WB_4000
+    }
+    else if ((Freq > 2200) && (Freq <= 2600))
+    {
+      return 10;      // HAM2400
+    }
+    else if ((Freq > 2600) && (Freq <= 3200))
+    {
+      return 2;      // WB_4000
+    }
+    else if ((Freq > 3200) && (Freq <= 3500))
+    {
+      return 11;      // HAM3500
+    }
+    else
+    {
+      return 2;      // WB_4000
+    }
+    
+}
+
+
+void configureRFE(double Freq)
+{
+  int RFE_CID_Rx;
+  int RFE_CID_Tx;
+  int RFE_PORT_Tx = 1;
+  int RFE_PORT_Rx = 1;
+  
+  static int CID_RX_Last;
+  static int CID_TX_Last;
+    
+  RFE_CID_Rx = getRFEBand(Freq + bandRxOffset[band]);
+  if((RFE_CID_Rx == 3) | (RFE_CID_Rx == 4))
+    {
+      RFE_PORT_Rx = 3;     // 1-70 MHz output Port
+    }
+  
+  RFE_CID_Tx = getRFEBand(Freq + bandTxOffset[band]);
+  if((RFE_CID_Tx == 3) | (RFE_CID_Tx == 4))
+    {
+      RFE_PORT_Tx = 3;     // 1-70 MHz output Port
+    }
+    
+  if((RFE_CID_Rx != CID_RX_Last) | (RFE_CID_Tx != CID_TX_Last))
+    {
+      RFE_Configure(rfe, RFE_CID_Rx, RFE_CID_Tx, RFE_PORT_Rx, RFE_PORT_Tx, RFE_MODE_RX, RFE_NOTCH_OFF, 0, 0, 0);
+       CID_RX_Last =  RFE_CID_Rx;
+       CID_TX_Last =  RFE_CID_Tx;
+    }
+
+}
+
+
+void RFERX()
+{
+  if (rfe != NULL)  // Don't do this if we don't have a handle for the LimeRFE
+  {
+	RFE_Mode(rfe, RFE_MODE_RX);
+  }
+}
+
+void RFETX()
+{
+  if (rfe != NULL)  // Don't do this if we don't have a handle for the LimeRFE
+  {
+	RFE_Mode(rfe, RFE_MODE_TX);
+  }
+}
+
+
+void RFEClose()
+{
+  if (rfe != NULL)  // Don't do this if we don't have a handle for the LimeRFE
+  {
+	//Reset LimeRFE
+	RFE_Reset(rfe);
+	//Close port
+	RFE_Close(rfe);
+    rfe = NULL;
+  }
+}
+
 
 
 void sqlButton(int show)
@@ -1726,6 +1916,10 @@ if(buttonTouched(funcButtonsX+buttonSpaceX*5,funcButtonsY))    //Button 6 = BEAC
          setBandBits(0);
          sendFifo("H0");        //unlock the flowgraph so that it can exit
          sendFifo("Q");       //kill the SDR
+         if(LimeRFEPresent)
+         {
+          RFEClose();
+         }
          clearScreen();
          writeConfig();
          sleep(2);                  
@@ -2255,12 +2449,16 @@ void setTx(int pt)
       setTxPin(1);
       setBandBits(bandBitsTx[band]);
       usleep(TXDELAY);
-      setHwTxFreq(freq);
+      setHwTxFreq(freq);      
       if((mode==FM)&&(bandDuplex[band]==1))
         {
         displayFreq(freq+bandRepShift[band]);
         displayMenu();
         }
+      if(LimeRFEPresent)
+        {
+        RFETX();
+        } 
       LimeTxEnable(1);
       if (moni==0) sendFifo("U1");                        //mute the receiver
       if(satMode()==0)
@@ -2289,6 +2487,10 @@ void setTx(int pt)
       
       sendFifo("R");
       sendFifo("U0");                  //unmute the receiver
+      if(LimeRFEPresent)
+      {
+        RFERX();
+      } 
       LimeTxEnable(0);
       setHwTxFreq(freq+10.0);           //offset the Tx freq to prevent unwanted spurious
       setHwRxFreq(freq);
@@ -2383,7 +2585,7 @@ void setHwTxFreq(double fr)
     txfreqhz=txfreqhz/bandTxHarmonic[band];
     } 
   
-      setLimeTxFreq(txfreqhz);          
+      setLimeTxFreq(txfreqhz);         
 }
 
 void displayFreq(double fr)
@@ -2432,6 +2634,10 @@ void displayFreq(double fr)
 void setFreq(double fr)
 {
 
+  if(LimeRFEPresent)
+  {
+    configureRFE(fr);
+  } 
   
   if(ptt | ptts) 
   {
