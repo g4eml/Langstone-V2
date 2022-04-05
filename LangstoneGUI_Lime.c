@@ -88,6 +88,7 @@ void initRFE(void);
 void configureRFE(double Freq);
 void RFERX();
 void RFETX();
+void RFETXRX();
 void RFEClose();
 
 
@@ -114,6 +115,7 @@ int bandFFTRef[numband]={-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10};
 int bandTxAtt[numband]={73,73,73,73,73,73,73,73,73,73,73,73};
 int bandRxGain[numband]={73,73,73,73,73,73,73,73,73,73,73,73};              
 int bandDuplex[numband]={0,0,0,0,0,0,0,0,0,0,0,0};
+int bandRFEPort[numband]= {0,0,0,0,0,0,0,0,0,0,0,1};
 float bandSmeterZero[numband]={-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80};
 int bandSSBFiltLow[numband]={300,300,300,300,300,300,300,300,300,300,300,300};
 int bandSSBFiltHigh[numband]={3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000};
@@ -133,10 +135,10 @@ int lastmode=0;
 char * modename[nummode]={"USB","LSB","CW ","CWN","FM ","AM "};
 enum {USB,LSB,CW,CWN,FM,AM};
 
-#define numSettings 19
+#define numSettings 20
 
-char * settingText[numSettings]={"Rx Gain= ","SSB Mic Gain= ","FM Mic Gain= ","AM Mic Gain= ","Repeater Shift= "," Rx Offset= ","Rx Harmonic Mixing= "," Tx Offset= ","Tx Harmonic Mixing= ","Band Bits (Rx)= ","Band Bits (Tx)= ","FFT Ref= ","Tx Gain= ","S-Meter Zero= ", "SSB Rx Filter Low= ", "SSB Rx Filter High= ","CW Ident= ", "CWID Carrier= ", "CW Break-In Hang Time= "};
-enum {RX_GAIN,SSB_MIC,FM_MIC,AM_MIC,REP_SHIFT,RX_OFFSET,RX_HARMONIC,TX_OFFSET,TX_HARMONIC,BAND_BITS_RX,BAND_BITS_TX,FFT_REF,TX_GAIN,S_ZERO,SSB_FILT_LOW,SSB_FILT_HIGH,CWID,CW_CARRIER,BREAK_IN_TIME};
+char * settingText[numSettings]={"Rx Gain= ","SSB Mic Gain= ","FM Mic Gain= ","AM Mic Gain= ","Repeater Shift= "," Rx Offset= ","Rx Harmonic Mixing= "," Tx Offset= ","Tx Harmonic Mixing= ","Band Bits (Rx)= ","Band Bits (Tx)= ","LimeRFE Tx Port = ","FFT Ref= ","Tx Gain= ","S-Meter Zero= ", "SSB Rx Filter Low= ", "SSB Rx Filter High= ","CW Ident= ", "CWID Carrier= ", "CW Break-In Hang Time= "};
+enum {RX_GAIN,SSB_MIC,FM_MIC,AM_MIC,REP_SHIFT,RX_OFFSET,RX_HARMONIC,TX_OFFSET,TX_HARMONIC,BAND_BITS_RX,BAND_BITS_TX,RFEPORT,FFT_REF,TX_GAIN,S_ZERO,SSB_FILT_LOW,SSB_FILT_HIGH,CWID,CW_CARRIER,BREAK_IN_TIME};
 int settingNo=RX_GAIN;
 int setIndex=0;
 int maxSetIndex=10;
@@ -1261,6 +1263,8 @@ void configureRFE(double Freq)
   
   static int CID_RX_Last;
   static int CID_TX_Last;
+  static int CID_RX_PORT_Last;
+  static int CID_TX_PORT_Last;                                                             
     
   RFE_CID_Rx = getRFEBand(Freq + bandRxOffset[band]);
   if((RFE_CID_Rx == 3) | (RFE_CID_Rx == 4))
@@ -1274,11 +1278,18 @@ void configureRFE(double Freq)
       RFE_PORT_Tx = 3;     // 1-70 MHz output Port
     }
     
-  if((RFE_CID_Rx != CID_RX_Last) | (RFE_CID_Tx != CID_TX_Last))
+  if((satMode() == 1) | (bandRFEPort[band] == 1))
+    {
+    RFE_PORT_Tx = 2;      //separate Tx Port if the Rx and Tx are both needed. 
+    }
+    
+  if((RFE_CID_Rx != CID_RX_Last) | (RFE_CID_Tx != CID_TX_Last) | (RFE_PORT_Rx != CID_RX_PORT_Last) | (RFE_PORT_Tx != CID_TX_PORT_Last) )
     {
       RFE_Configure(rfe, RFE_CID_Rx, RFE_CID_Tx, RFE_PORT_Rx, RFE_PORT_Tx, RFE_MODE_RX, RFE_NOTCH_OFF, 0, 0, 0);
        CID_RX_Last =  RFE_CID_Rx;
        CID_TX_Last =  RFE_CID_Tx;
+       CID_RX_PORT_Last = RFE_PORT_Rx;
+       CID_TX_PORT_Last = RFE_PORT_Tx;       
     }
 
 }
@@ -1300,6 +1311,14 @@ void RFETX()
   }
 }
 
+//enable Rx and Tx modes. (Only if Tx and rx bands are different)
+void RFETXRX()
+{
+  if (rfe != NULL)  // Don't do this if we don't have a handle for the LimeRFE
+  {
+	RFE_Mode(rfe, RFE_MODE_TXRX);
+  }
+}
 
 void RFEClose()
 {
@@ -1847,6 +1866,10 @@ if(buttonTouched(funcButtonsX+buttonSpaceX*2,funcButtonsY))  // Button 3 =Blank 
       else if(inputMode==SETTINGS)
       {
       settingNo=settingNo+1;
+      if((settingNo == RFEPORT) & (LimeRFEPresent ==0))
+        {
+        settingNo=settingNo +1;
+        }
       if(settingNo==numSettings) settingNo=0;
       displaySetting(settingNo);
       return;
@@ -1867,6 +1890,10 @@ if(buttonTouched(funcButtonsX+buttonSpaceX*3,funcButtonsY))    // Button4 =SET o
     else  if (inputMode==SETTINGS)
       {
       settingNo=settingNo-1;
+      if((settingNo == RFEPORT) & (LimeRFEPresent ==0))
+        {
+        settingNo=settingNo - 1 ;
+        }
       if(settingNo<0) settingNo=numSettings-1;
       displaySetting(settingNo);
       return;
@@ -1885,6 +1912,7 @@ if(buttonTouched(funcButtonsX+buttonSpaceX*4,funcButtonsY))    //Button 5 =MONI 
       if(satMode()==1)
         {
         if(moni==1) setMoni(0); else setMoni(1);
+        setFreq(freq);
         }      
       return;
       } 
@@ -2458,7 +2486,14 @@ void setTx(int pt)
       if (moni==0) sendFifo("U1");                        //mute the receiver
       if(LimeRFEPresent)
         {
-        RFETX();
+        if(satMode() ==1)
+           {
+             RFETXRX();                         //enable both the Rx AND Tx Channels (Must be different)
+           }
+        else
+          {
+            RFETX();
+          }
         } 
       sendFifo("T");
       LimeTxEnable(1);
@@ -3070,7 +3105,14 @@ if(settingNo==BAND_BITS_TX)        // Band Bits Tx
       if(bandBitsTx[band]>255) bandBitsTx[band]=255;
       displaySetting(settingNo);  
       }        
-        
+  if(settingNo==RFEPORT)        // Lime RFE Port
+      {
+      if(mouseScroll > 0)   bandRFEPort[band] = 1;
+      if(mouseScroll < 0)   bandRFEPort[band] = 0;
+      mouseScroll=0; 
+      setFreq(freq);  
+      displaySetting(settingNo);  
+      }           
    if(settingNo==FFT_REF)        // FFT Ref Level
       {
       FFTRef=FFTRef+mouseScroll;
@@ -3279,6 +3321,17 @@ if(se==BAND_BITS_TX)
         }
     } 
   } 
+  if(se==RFEPORT)
+  {
+    if(bandRFEPort[band] == 0)
+    {
+      displayStr("Tx/Rx");
+    }
+    else
+    {
+        displayStr("Tx");
+    }
+  }
   if(se==FFT_REF)
   {
   sprintf(valStr,"%d",FFTRef);
@@ -3421,7 +3474,9 @@ while(fscanf(conffile,"%49s %99s [^\n]\n",variable,value) !=EOF)
     if(strstr(variable,vname)) sscanf(value,"%d",&bandBitsRx[b]); 
     sprintf(vname,"bandTxBits%02d",b);
     if(strstr(variable,vname)) sscanf(value,"%d",&bandBitsTx[b]);  
-       
+    
+    sprintf(vname,"bandRFEPort%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandRFEPort[b]);      
     sprintf(vname,"bandFFTRef%02d",b);
     if(strstr(variable,vname)) sscanf(value,"%d",&bandFFTRef[b]);     
     sprintf(vname,"bandSquelch%02d",b);
@@ -3496,6 +3551,7 @@ for(int b=0;b<numband;b++)
   fprintf(conffile,"bandDuplex%02d %d\n",b,bandDuplex[b]);
   fprintf(conffile,"bandRxBits%02d %d\n",b,bandBitsRx[b]);
   fprintf(conffile,"bandTxBits%02d %d\n",b,bandBitsTx[b]);
+  fprintf(conffile,"bandRFEPort%02d %d\n",b,bandRFEPort[b]);
   fprintf(conffile,"bandFFTRef%02d %d\n",b,bandFFTRef[b]);
   fprintf(conffile,"bandSquelch%02d %d\n",b,bandSquelch[b]);
   fprintf(conffile,"bandTxAtt%02d %d\n",b,bandTxAtt[b]);
