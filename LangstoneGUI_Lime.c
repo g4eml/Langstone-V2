@@ -1176,71 +1176,71 @@ void initRFE(void)
 int getRFEBand(double Freq)
 {                                                                              
 
- if (Freq <= 45)
+ if (Freq < 50)
     {
       return 3;      // HAM_0030
     }
-    else if ((Freq > 45) && (Freq <= 85))
+    else if ((Freq >= 50) && (Freq < 85))
     {
       return 4;      // HAM_0070
     }
-    else if ((Freq > 85) && (Freq <= 140))
+    else if ((Freq >= 85) && (Freq < 140))
     {
       return 1;      // WB_1000
     }
-    else if ((Freq > 140) && (Freq <= 150))
+    else if ((Freq >= 140) && (Freq < 150))
     {
       return 5;      // HAM_0145
     }
-    else if ((Freq > 150) && (Freq <= 190))
+    else if ((Freq >= 150) && (Freq < 190))
     {
       return 1;      // WB_1000
     }
-    else if ((Freq > 190) && (Freq <= 260))
+    else if ((Freq >= 190) && (Freq < 260))
     {
       return 6;      // HAM_0220
     }
-    else if ((Freq > 260) && (Freq <= 400))
+    else if ((Freq >= 260) && (Freq < 400))
     {
       return 1;      // WB_1000
     }
-    else if ((Freq > 400) && (Freq <= 500))
+    else if ((Freq >= 400) && (Freq < 500))
     {
       return 7;      // HAM_0435
     }
-    else if ((Freq > 500) && (Freq <= 900))
+    else if ((Freq >= 500) && (Freq < 900))
     {
       return 1;      // WB_1000
     }
-    else if ((Freq > 900) && (Freq <= 930))
+    else if ((Freq >= 900) && (Freq < 930))
     {
       return 8;      // HAM_0920
     }
-    else if ((Freq > 930) && (Freq <= 1000))
+    else if ((Freq >= 930) && (Freq < 1000))
     {
       return 1;      // WB_1000
     }
-    else if ((Freq > 1000) && (Freq <= 1200))
+    else if ((Freq >= 1000) && (Freq < 1200))
     {
       return 2;      // WB_4000
     }
-    else if ((Freq > 1200) && (Freq <= 1500))
+    else if ((Freq >= 1200) && (Freq < 1500))
     {
       return 9;      // HAM_1280
     }
-    else if ((Freq > 1500) && (Freq <= 2200))
+    else if ((Freq >= 1500) && (Freq < 2200))
     {
       return 2;      // WB_4000
     }
-    else if ((Freq > 2200) && (Freq <= 2600))
+    else if ((Freq >= 2200) && (Freq < 2600))
     {
       return 10;      // HAM2400
     }
-    else if ((Freq > 2600) && (Freq <= 3200))
+    else if ((Freq >= 2600) && (Freq < 3200))
     {
       return 2;      // WB_4000
     }
-    else if ((Freq > 3200) && (Freq <= 3500))
+    else if ((Freq >= 3200) && (Freq < 3500))
     {
       return 11;      // HAM3500
     }
@@ -2455,22 +2455,19 @@ void setTx(int pt)
         displayFreq(freq+bandRepShift[band]);
         displayMenu();
         }
+      if (moni==0) sendFifo("U1");                        //mute the receiver
       if(LimeRFEPresent)
         {
         RFETX();
         } 
+      sendFifo("T");
       LimeTxEnable(1);
-      if (moni==0) sendFifo("U1");                        //mute the receiver
       if(satMode()==0)
       {
         sMeter=0;
-        setHwRxFreq(freq+10.0);               //offset the Rx frequency to prevent unwanted mixing. (happens even if disabled!)  
+        setHwRxFreq(freq+10.0);               //offset the Rx frequency to prevent unwanted mixing. (happens even if disabled!) 
+        clearWaterfall(); 
       }
-      if(satMode()==0)
-      {
-        clearWaterfall();
-      }
-      sendFifo("T");
       gotoXY(txX,txY);
       setForeColour(255,0,0);
       textSize=2;
@@ -2484,14 +2481,13 @@ void setTx(int pt)
       sMeter=0;
       clearWaterfall();
       }
-      
+      LimeTxEnable(0);      
       sendFifo("R");
       sendFifo("U0");                  //unmute the receiver
       if(LimeRFEPresent)
       {
         RFERX();
       } 
-      LimeTxEnable(0);
       setHwTxFreq(freq+10.0);           //offset the Tx freq to prevent unwanted spurious
       setHwRxFreq(freq);
       if((mode==FM)&&(bandDuplex[band]==1))
