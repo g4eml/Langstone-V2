@@ -204,6 +204,11 @@ void processMouse(int mbut)
     {
         printf("Right Mouse Button Pressed\n");         
     }
+    
+  if(mbut==3+128)      //Middle Mouse Button down
+    {
+        printf("Middle Mouse Button Pressed\n");         
+    }
       
     
 }
