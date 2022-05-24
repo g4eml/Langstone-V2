@@ -3,10 +3,9 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Pluto
-# Generated: Mon Mar 21 16:20:24 2022
+# Generated: Tue May 24 20:53:05 2022
 ##################################################
-import os
-import errno
+
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
@@ -28,10 +27,6 @@ class Lang_TRX_Pluto(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        plutoip=os.environ.get('PLUTO_IP')
-        if plutoip==None :
-          plutoip='pluto.local'
-        plutoip='ip:' + plutoip
         self.Tx_Mode = Tx_Mode = 0
         self.Tx_LO = Tx_LO = 1000000000
         self.Tx_Gain = Tx_Gain = 30
@@ -50,6 +45,7 @@ class Lang_TRX_Pluto(gr.top_block):
         self.MicGain = MicGain = 5.0
         self.KEY = KEY = False
         self.FMMIC = FMMIC = 50
+        self.CTCSS = CTCSS = 885
         self.AMMIC = AMMIC = 5
         self.AFGain = AFGain = 20
 
@@ -62,8 +58,8 @@ class Lang_TRX_Pluto(gr.top_block):
                 taps=None,
                 fractional_bw=None,
         )
-        self.pluto_source_0 = iio.pluto_source(plutoip, 1000000000, 528000, 2000000, 0x800, True, True, True, "slow_attack", 64.0, '', True)
-        self.pluto_sink_0 = iio.pluto_sink(plutoip, 1000000000, 528000, 2000000, 0x800, False, 0, '', True)
+        self.pluto_source_0 = iio.pluto_source('ip:pluto.local', Rx_LO, 528000, 2000000, 0x800, True, True, True, "slow_attack", 64.0, '', True)
+        self.pluto_sink_0 = iio.pluto_sink('ip:pluto.local', Tx_LO, 528000, 2000000, 0x800, False, Tx_Gain, '', True)
         self.logpwrfft_x_0_0 = logpwrfft.logpwrfft_c(
         	sample_rate=48000,
         	fft_size=512,
@@ -102,16 +98,18 @@ class Lang_TRX_Pluto(gr.top_block):
         self.blocks_add_xx_2 = blocks.add_vcc(1)
         self.blocks_add_xx_1_0 = blocks.add_vff(1)
         self.blocks_add_xx_1 = blocks.add_vff(1)
+        self.blocks_add_xx_0_0 = blocks.add_vff(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
         self.blocks_add_const_vxx_0_0 = blocks.add_const_vff(((0.5 * int(Tx_Mode==5)) + int(Tx_Mode==2) +int(Tx_Mode==3), ))
         self.band_pass_filter_1 = filter.fir_filter_fff(1, firdes.band_pass(
-        	1, 48000, 200, 3500, 100, firdes.WIN_HAMMING, 6.76))
+        	1, 48000, 300, 3500, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
         	1, 48000, Tx_Filt_Low, Tx_Filt_High, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
         	1, 48000, Rx_Filt_Low, Rx_Filt_High, 100, firdes.WIN_HAMMING, 6.76))
         self.audio_source_0 = audio.source(48000, "hw:CARD=Device,DEV=0", False)
         self.audio_sink_0 = audio.sink(48000, "hw:CARD=Device,DEV=0", False)
+        self.analog_sig_source_x_1_0 = analog.sig_source_f(48000, analog.GR_SIN_WAVE, CTCSS/10.0, 0.15 * (CTCSS >0), 0)
         self.analog_sig_source_x_1 = analog.sig_source_f(48000, analog.GR_COS_WAVE, 1750, 1.0*ToneBurst, 0)
         self.analog_sig_source_x_0 = analog.sig_source_c(48000, analog.GR_COS_WAVE, 0, 1, 0)
         self.analog_rail_ff_0_0 = analog.rail_ff(-0.99, 0.99)
@@ -146,15 +144,17 @@ class Lang_TRX_Pluto(gr.top_block):
         self.connect((self.analog_rail_ff_0_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 0))
+        self.connect((self.analog_sig_source_x_1_0, 0), (self.blocks_add_xx_0_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.analog_pwr_squelch_xx_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_mag_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.band_pass_filter_0_0, 0), (self.blocks_multiply_const_vxx_4, 0))
-        self.connect((self.band_pass_filter_1, 0), (self.analog_nbfm_tx_0, 0))
+        self.connect((self.band_pass_filter_1, 0), (self.blocks_add_xx_0_0, 1))
         self.connect((self.blocks_add_const_vxx_0_0, 0), (self.analog_rail_ff_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_rail_ff_0, 0))
+        self.connect((self.blocks_add_xx_0_0, 0), (self.analog_nbfm_tx_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_add_xx_1_0, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.blocks_mute_xx_0_0_0, 0))
@@ -314,6 +314,14 @@ class Lang_TRX_Pluto(gr.top_block):
         self.FMMIC = FMMIC
         self.blocks_multiply_const_vxx_0_0.set_k((self.FMMIC/5.0, ))
 
+    def get_CTCSS(self):
+        return self.CTCSS
+
+    def set_CTCSS(self, CTCSS):
+        self.CTCSS = CTCSS
+        self.analog_sig_source_x_1_0.set_frequency(self.CTCSS/10.0)
+        self.analog_sig_source_x_1_0.set_amplitude(0.15 * (self.CTCSS >0))
+
     def get_AMMIC(self):
         return self.AMMIC
 
@@ -328,97 +336,15 @@ class Lang_TRX_Pluto(gr.top_block):
         self.AFGain = AFGain
         self.blocks_multiply_const_vxx_1.set_k(((self.AFGain/100.0) *  (not self.Rx_Mute), ))
 
-def docommands(tb):
-  try:
-    os.mkfifo("/tmp/langstoneTRx")
-  except OSError as oe:
-    if oe.errno != errno.EEXIST:
-      raise    
-  ex=False
-  lastbase=0
-  while not ex:
-    fifoin=open("/tmp/langstoneTRx",'r')
-    while True:
-       try:
-        with fifoin as filein:
-         for line in filein:
-           line=line.strip()
-           if line[0]=='Q':
-              ex=True                  
-           if line[0]=='U':
-              value=int(line[1:])
-              tb.set_Rx_Mute(value)
-           if line[0]=='H':
-              value=int(line[1:])
-              if value==1:   
-                  tb.lock()
-              if value==0:
-                  tb.unlock() 
-           if line[0]=='O':
-              value=int(line[1:])
-              tb.set_RxOffset(value)  
-           if line[0]=='V':
-              value=int(line[1:])
-              tb.set_AFGain(value)
-           if line[0]=='L':
-              value=int(line[1:])
-              tb.set_Rx_LO(value)
-           if line[0]=='A':
-              value=int(line[1:])
-              tb.set_Rx_Gain(value)
-           if line[0]=='S':
-              value=int(line[1:])
-              tb.set_SQL(value) 
-           if line[0]=='F':
-              value=int(line[1:])
-              tb.set_Rx_Filt_High(value) 
-           if line[0]=='I':
-              value=int(line[1:])
-              tb.set_Rx_Filt_Low(value) 
-           if line[0]=='M':
-              value=int(line[1:])
-              tb.set_Rx_Mode(value) 
-              tb.set_Tx_Mode(value)
-           if line=='R':
-              tb.set_PTT(False) 
-           if line=='T':
-              tb.set_PTT(True)
-           if line[0]=='K':
-              value=int(line[1:])
-              tb.set_KEY(value) 
-           if line[0]=='B':
-              value=int(line[1:])
-              tb.set_ToneBurst(value) 
-           if line[0]=='G':
-              value=int(line[1:])
-              tb.set_MicGain(value) 
-           if line[0]=='g':
-              value=int(line[1:])
-              tb.set_FMMIC(value)
-           if line[0]=='d':
-              value=int(line[1:])
-              tb.set_AMMIC(value)
-           if line[0]=='f':
-              value=int(line[1:])
-              tb.set_Tx_Filt_High(value) 
-           if line[0]=='i':
-              value=int(line[1:])
-              tb.set_Tx_Filt_Low(value)     
-           if line[0]=='l':
-              value=int(line[1:])
-              tb.set_Tx_LO(value)  
-           if line[0]=='a':
-              value=int(line[1:])
-              tb.set_Tx_Gain(value)       
-                                                                 
-       except:
-         break
 
 def main(top_block_cls=Lang_TRX_Pluto, options=None):
 
     tb = top_block_cls()
     tb.start()
-    docommands(tb)
+    try:
+        raw_input('Press Enter to quit: ')
+    except EOFError:
+        pass
     tb.stop()
     tb.wait()
 
