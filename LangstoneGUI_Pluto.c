@@ -223,6 +223,8 @@ long progStartTime=0;
 
 int lastKey=1;
 
+int sMeterType = 0;
+
 int volume=20;
 #define maxvol 100
 
@@ -760,6 +762,8 @@ void S_Meter(void)
               textSize=2;
               setForeColour(0,255,0);
               gotoXY(sMeterX+10,sMeterY+20);
+              if (sMeterType == 0)
+              {
               sprintf(smStr,"S%d",sValue);
               displayStr(smStr);
               if(dbOver>0)
@@ -771,6 +775,12 @@ void S_Meter(void)
                 {
                 displayStr("       ");
                 }
+              }
+              else
+              {
+                sprintf(smStr,"%.0f dB    ",sMeter);
+                displayStr(smStr);
+              }
            }
  
 }
@@ -1918,6 +1928,19 @@ if(buttonTouched(ritButtonX,ritButtonY+buttonSpaceY))    //rit zero
      setRit(0);
      setInputMode(FREQ);
     }
+    
+if(buttonTouched(sMeterX,sMeterY))                        //touch on s-Meter
+{
+   if(sMeterType == 0)
+   {
+     sMeterType=1;
+   }
+   else
+   {
+     sMeterType=0;
+   }
+}
+
 //Function Buttons
 
 
