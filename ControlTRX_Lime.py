@@ -99,7 +99,9 @@ def docommands(tb):
            if line[0]=='a':
               value=int(line[1:])
               tb.set_Tx_Gain(value)       
-                                                                 
+           if line[0]=='C':
+              value=int(line[1:])
+              tb.set_CTCSS(value)                                                                   
        except:
          break
 

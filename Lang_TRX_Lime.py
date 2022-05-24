@@ -5,6 +5,8 @@
 # Title: Lang Trx Lime
 # Generated: Tue May 24 20:53:44 2022
 ##################################################
+import os
+import errno
 
 from gnuradio import analog
 from gnuradio import audio
@@ -351,15 +353,99 @@ class Lang_TRX_Lime(gr.top_block):
         self.AFGain = AFGain
         self.blocks_multiply_const_vxx_1.set_k(((self.AFGain/100.0) *  (not self.Rx_Mute), ))
 
+def docommands(tb):
+  try:
+    os.mkfifo("/tmp/langstoneTRx")
+  except OSError as oe:
+    if oe.errno != errno.EEXIST:
+      raise    
+  ex=False
+  lastbase=0
+  while not ex:
+    fifoin=open("/tmp/langstoneTRx",'r')
+    while True:
+       try:
+        with fifoin as filein:
+         for line in filein:
+           line=line.strip()
+           if line[0]=='Q':
+              ex=True                  
+           if line[0]=='U':
+              value=int(line[1:])
+              tb.set_Rx_Mute(value)
+           if line[0]=='H':
+              value=int(line[1:])
+              if value==1:   
+                  tb.lock()
+              if value==0:
+                  tb.unlock() 
+           if line[0]=='O':
+              value=int(line[1:])
+              tb.set_RxOffset(value)  
+           if line[0]=='V':
+              value=int(line[1:])
+              tb.set_AFGain(value)
+           if line[0]=='L':
+              value=int(line[1:])
+              tb.set_Rx_LO(value)
+           if line[0]=='A':
+              value=int(line[1:])
+              tb.set_Rx_Gain(value)
+           if line[0]=='S':
+              value=int(line[1:])
+              tb.set_SQL(value) 
+           if line[0]=='F':
+              value=int(line[1:])
+              tb.set_Rx_Filt_High(value) 
+           if line[0]=='I':
+              value=int(line[1:])
+              tb.set_Rx_Filt_Low(value) 
+           if line[0]=='M':
+              value=int(line[1:])
+              tb.set_Rx_Mode(value) 
+              tb.set_Tx_Mode(value)
+           if line=='R':
+              tb.set_PTT(False) 
+           if line=='T':
+              tb.set_PTT(True)
+           if line[0]=='K':
+              value=int(line[1:])
+              tb.set_KEY(value) 
+           if line[0]=='B':
+              value=int(line[1:])
+              tb.set_ToneBurst(value) 
+           if line[0]=='G':
+              value=int(line[1:])
+              tb.set_MicGain(value) 
+           if line[0]=='g':
+              value=int(line[1:])
+              tb.set_FMMIC(value)
+           if line[0]=='d':
+              value=int(line[1:])
+              tb.set_AMMIC(value)
+           if line[0]=='f':
+              value=int(line[1:])
+              tb.set_Tx_Filt_High(value) 
+           if line[0]=='i':
+              value=int(line[1:])
+              tb.set_Tx_Filt_Low(value)     
+           if line[0]=='l':
+              value=int(line[1:])
+              tb.set_Tx_LO(value)  
+           if line[0]=='a':
+              value=int(line[1:])
+              tb.set_Tx_Gain(value)       
+           if line[0]=='C':
+              value=int(line[1:])
+              tb.set_CTCSS(value)                                                                   
+       except:
+         break
 
 def main(top_block_cls=Lang_TRX_Lime, options=None):
 
     tb = top_block_cls()
     tb.start()
-    try:
-        raw_input('Press Enter to quit: ')
-    except EOFError:
-        pass
+    docommands(tb)
     tb.stop()
     tb.wait()
 
