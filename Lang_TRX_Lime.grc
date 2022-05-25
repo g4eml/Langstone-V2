@@ -853,7 +853,7 @@
     </param>
     <param>
       <key>max_dev</key>
-      <value>250</value>
+      <value>5000</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -873,7 +873,7 @@
     </param>
     <param>
       <key>tau</key>
-      <value>1000e-6</value>
+      <value>75e-6</value>
     </param>
   </block>
   <block>

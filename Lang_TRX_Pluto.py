@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Pluto
-# Generated: Tue May 24 20:53:05 2022
+# Generated: Wed May 25 11:57:23 2022
 ##################################################
 import os
 import errno
@@ -125,8 +125,8 @@ class Lang_TRX_Pluto(gr.top_block):
         self.analog_nbfm_tx_0 = analog.nbfm_tx(
         	audio_rate=48000,
         	quad_rate=48000,
-        	tau=1000e-6,
-        	max_dev=250,
+        	tau=75e-6,
+        	max_dev=5000,
         	fh=-1,
                 )
         self.analog_nbfm_rx_0 = analog.nbfm_rx(
@@ -439,6 +439,7 @@ def main(top_block_cls=Lang_TRX_Pluto, options=None):
     docommands(tb)
     tb.stop()
     tb.wait()
+
 
 if __name__ == '__main__':
     main()
