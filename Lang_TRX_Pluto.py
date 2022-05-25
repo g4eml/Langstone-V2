@@ -65,8 +65,8 @@ class Lang_TRX_Pluto(gr.top_block):
                 taps=None,
                 fractional_bw=None,
         )
-        self.pluto_source_0 = iio.pluto_source(plutoip, Rx_LO, 528000, 2000000, 0x800, True, True, True, "slow_attack", 64.0, '', True)
-        self.pluto_sink_0 = iio.pluto_sink(plutoip, Tx_LO, 528000, 2000000, 0x800, False, Tx_Gain, '', True)
+        self.pluto_source_0 = iio.pluto_source(plutoip, 1000000000, 528000, 2000000, 0x800, True, True, True, "slow_attack", 64.0, '', True)
+        self.pluto_sink_0 = iio.pluto_sink(plutoip, 1000000000, 528000, 2000000, 0x800, False, 0, '', True)
         self.logpwrfft_x_0_0 = logpwrfft.logpwrfft_c(
         	sample_rate=48000,
         	fft_size=512,
