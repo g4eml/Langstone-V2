@@ -3,11 +3,11 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Lime
-# Generated: Mon Mar 21 15:23:48 2022
+# Generated: Wed May 25 11:59:42 2022
 ##################################################
-
 import os
 import errno
+
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
@@ -47,6 +47,7 @@ class Lang_TRX_Lime(gr.top_block):
         self.MicGain = MicGain = 5.0
         self.KEY = KEY = False
         self.FMMIC = FMMIC = 50
+        self.CTCSS = CTCSS = 885
         self.AMMIC = AMMIC = 5
         self.AFGain = AFGain = 20
 
@@ -113,16 +114,18 @@ class Lang_TRX_Lime(gr.top_block):
         self.blocks_add_xx_2 = blocks.add_vcc(1)
         self.blocks_add_xx_1_0 = blocks.add_vff(1)
         self.blocks_add_xx_1 = blocks.add_vff(1)
+        self.blocks_add_xx_0_0 = blocks.add_vff(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
         self.blocks_add_const_vxx_0 = blocks.add_const_vff(((0.5 * int(Tx_Mode==5)) + int(Tx_Mode==2) +int(Tx_Mode==3), ))
         self.band_pass_filter_1 = filter.fir_filter_fff(1, firdes.band_pass(
-        	1, 48000, 200, 3500, 100, firdes.WIN_HAMMING, 6.76))
+        	1, 48000, 300, 3500, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
         	1, 48000, Tx_Filt_Low, Tx_Filt_High, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
         	1, 48000, Rx_Filt_Low, Rx_Filt_High, 100, firdes.WIN_HAMMING, 6.76))
         self.audio_source_0 = audio.source(48000, "hw:CARD=Device,DEV=0", False)
         self.audio_sink_0 = audio.sink(48000, "hw:CARD=Device,DEV=0", False)
+        self.analog_sig_source_x_1_0 = analog.sig_source_f(48000, analog.GR_SIN_WAVE, CTCSS/10.0, 0.15 * (CTCSS >0), 0)
         self.analog_sig_source_x_1 = analog.sig_source_f(48000, analog.GR_COS_WAVE, 1750, 1.0*ToneBurst, 0)
         self.analog_sig_source_x_0 = analog.sig_source_c(48000, analog.GR_COS_WAVE, 0, 1, 0)
         self.analog_rail_ff_0_0 = analog.rail_ff(-0.99, 0.99)
@@ -131,8 +134,8 @@ class Lang_TRX_Lime(gr.top_block):
         self.analog_nbfm_tx_0 = analog.nbfm_tx(
         	audio_rate=48000,
         	quad_rate=48000,
-        	tau=1000e-6,
-        	max_dev=250,
+        	tau=75e-6,
+        	max_dev=5000,
         	fh=-1,
                 )
         self.analog_nbfm_rx_0 = analog.nbfm_rx(
@@ -157,15 +160,17 @@ class Lang_TRX_Lime(gr.top_block):
         self.connect((self.analog_rail_ff_0_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 0))
+        self.connect((self.analog_sig_source_x_1_0, 0), (self.blocks_add_xx_0_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.analog_pwr_squelch_xx_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_mag_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.band_pass_filter_0_0, 0), (self.blocks_multiply_const_vxx_4, 0))
-        self.connect((self.band_pass_filter_1, 0), (self.analog_nbfm_tx_0, 0))
+        self.connect((self.band_pass_filter_1, 0), (self.blocks_add_xx_0_0, 1))
         self.connect((self.blocks_add_const_vxx_0, 0), (self.analog_rail_ff_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_rail_ff_0, 0))
+        self.connect((self.blocks_add_xx_0_0, 0), (self.analog_nbfm_tx_0, 0))
         self.connect((self.blocks_add_xx_1, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.blocks_add_xx_1_0, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.blocks_mute_xx_0_0, 0))
@@ -326,6 +331,14 @@ class Lang_TRX_Lime(gr.top_block):
         self.FMMIC = FMMIC
         self.blocks_multiply_const_vxx_0_0.set_k((self.FMMIC/5.0, ))
 
+    def get_CTCSS(self):
+        return self.CTCSS
+
+    def set_CTCSS(self, CTCSS):
+        self.CTCSS = CTCSS
+        self.analog_sig_source_x_1_0.set_frequency(self.CTCSS/10.0)
+        self.analog_sig_source_x_1_0.set_amplitude(0.15 * (self.CTCSS >0))
+
     def get_AMMIC(self):
         return self.AMMIC
 
@@ -422,7 +435,9 @@ def docommands(tb):
            if line[0]=='a':
               value=int(line[1:])
               tb.set_Tx_Gain(value)       
-                                                                 
+           if line[0]=='C':
+              value=int(line[1:])
+              tb.set_CTCSS(value)                                                                   
        except:
          break
 
