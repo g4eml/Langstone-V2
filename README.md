@@ -1,7 +1,6 @@
 # Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
 
 # Now with support for Lime SDR and Adalm Pluto
-# Note:- This V2 version is still under development. It may not work correctly.
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
 
