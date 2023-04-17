@@ -1,6 +1,6 @@
 # Langstone-V2 SDR Transceiver by Colin Durbridge G4EML
 
-# Now with support for Lime SDR and Adalm Pluto
+# Now with support for Lime SDR Mini, Lime SDR Mini V2 and Adalm Pluto
 
 This is an experimental project to produce a simple VHF, UHF and Microwave SDR Transceiver operating on SSB CW and FM.
 
@@ -16,7 +16,7 @@ Currently only the following hardware is supported:-
 
 - Official Raspberry Pi 7" touchscreen, DFRobot DFR0550 5" Touchscreen or Pimoroni Hyperpixel4 4" Touchscreen
 
-- Adalm Pluto SDR Module or Lime SDR Mini
+- Adalm Pluto SDR Module, Lime SDR Mini or Lime SDR Mini V2
 
 - USB Audio module. Connected to loudspeaker or headphones and microphone. 
  
@@ -60,11 +60,11 @@ The software consists of two parts. The SDR itself uses a python GNURadio Flowgr
 
 The preferred installation method only needs a Windows PC connected to the same (internet-connected) network as your Raspberry Pi.  Do not connect a keyboard or HDMI display directly to your Raspberry Pi.
 
-- First download the 2021-05-07 release of Raspios Buster Lite on to your Windows PC from here  https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2021-05-28/2021-05-07-raspios-buster-armhf-lite.zip
+- First download the 2023-02-21 release of Raspberry Pi OS Lite (Legacy) on to your Windows PC from here https://downloads.raspberrypi.org/raspios_oldstable_lite_armhf/images/raspios_oldstable_lite_armhf-2023-02-22/2023-02-21-raspios-buster-armhf-lite.img.xz
 
 (This version is known to work. Newer versions should also work and may speed up the installation but have not yet been tested) 
 
-- Unzip the image and then transfer it to a Micro-SD Card using Win32diskimager https://sourceforge.net/projects/win32diskimager/
+- Unzip the image (using 7zip https://www.7-zip.org/ as it is a .xz compressed file) and then transfer it to a Micro-SD Card using Win32diskimager https://sourceforge.net/projects/win32diskimager/
 - Make sure you use a good quality class 10 Micro-SD Card. (16GB is OK) The performance of the Raspberry Pi can be badly affected by poor quality cards. 
 
 - Before you remove the card from your Windows PC, look at the card with windows explorer; the volume should be labeled "boot".  Create a new empty file called ssh in the top-level (root) directory by right-clicking, selecting New, Text Document, and then change the name to ssh (not ssh.txt).  You should get a window warning about changing the filename extension.  Click OK.  If you do not get this warning, you have created a file called ssh.txt and you need to rename it ssh.  IMPORTANT NOTE: by default, Windows (all versions) hides the .txt extension on the ssh file.  To change this, in Windows Explorer, select File, Options, click the View tab, and then untick "Hide extensions for known file types". Then click OK.

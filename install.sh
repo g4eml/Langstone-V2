@@ -54,17 +54,16 @@ wget https://project-downloads.drogon.net/wiringpi-latest.deb
 sudo dpkg -i wiringpi-latest.deb
 cd ~
 
-# Install LimeSuite 20.10 as at 25 Jan 21
-# Commit be276996ec3f23b2aadc10543add867d1a55afdd
+# Install LimeSuite 22.09 as at 27 Feb 23
+# Commit 9c983d872e75214403b7778122e68d920d583add
 echo
 echo "#######################################"
-echo "##    Installing LimeSuite 20.10     ##"
-echo "#######################################"
-
-wget https://github.com/myriadrf/LimeSuite/archive/be276996ec3f23b2aadc10543add867d1a55afdd.zip -O master.zip
+echo "##### Installing LimeSuite 22.09 #####"
+echo "######################################"
+wget https://github.com/myriadrf/LimeSuite/archive/9c983d872e75214403b7778122e68d920d583add.zip -O master.zip
 unzip -o master.zip
-cp -f -r LimeSuite-be276996ec3f23b2aadc10543add867d1a55afdd LimeSuite
-rm -rf LimeSuite-be276996ec3f23b2aadc10543add867d1a55afdd
+cp -f -r LimeSuite-9c983d872e75214403b7778122e68d920d583add LimeSuite
+rm -rf LimeSuite-9c983d872e75214403b7778122e68d920d583add
 rm master.zip
 
 # Compile LimeSuite
@@ -81,10 +80,10 @@ cd /home/pi
 cd LimeSuite/udev-rules
 chmod +x install.sh
 sudo /home/pi/LimeSuite/udev-rules/install.sh
-cd ~	
+cd /home/pi	
 
 # Record the LimeSuite Version	
-echo "be27699" >/home/pi/LimeSuite/commit_tag.txt
+echo "9c983d8" >/home/pi/LimeSuite/commit_tag.txt
 
 
 
