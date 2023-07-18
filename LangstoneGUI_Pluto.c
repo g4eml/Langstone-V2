@@ -2719,13 +2719,17 @@ void setHwRxFreq(double fr)
   
   frRx=fr+bandRxOffset[band];
   
-  if(frRx > maxHwFreq)
+  
+  if(bandRxHarmonic[band] < 2)
   {
-  frRx = maxHwFreq;
-  }
-  if(frRx < minHwFreq)
-  {
-  frRx = minHwFreq;
+    if(frRx > maxHwFreq)
+    {
+    frRx = maxHwFreq;
+    }
+    if(frRx < minHwFreq)
+    {
+    frRx = minHwFreq;
+    }
   }
   
   rxfreqhz=frRx*1000000;
@@ -2772,13 +2776,17 @@ void setHwTxFreq(double fr)
   
   frTx=fr+bandTxOffset[band];
   
-  if(frTx > maxHwFreq)
+ 
+  if(bandTxHarmonic[band] < 2)
   {
-  frTx = maxHwFreq;
-  }
-  if(frTx < minHwFreq)
-  {
-  frTx = minHwFreq;
+    if(frTx > maxHwFreq)
+    {
+    frTx = maxHwFreq;
+    }
+    if(frTx < minHwFreq)
+    {
+    frTx = minHwFreq;
+    }
   }
   
   if((mode==FM)&&(bandDuplex[band]==1))
@@ -2788,12 +2796,12 @@ void setHwTxFreq(double fr)
  
   txfreqhz=frTx*1000000;
    
-   if(bandTxHarmonic[band]>1)                    //allow for Harmonic mixing for higher bands or for external multiplier such as Hydra
+  if(bandTxHarmonic[band]>1)                    //allow for Harmonic mixing for higher bands or for external multiplier such as Hydra
     {
-    txfreqhz=txfreqhz/bandTxHarmonic[band];
+    txfreqhz= txfreqhz/bandTxHarmonic[band];
     } 
   
-      setPlutoTxFreq(txfreqhz);          //Control Pluto directly to bypass problems with Gnu Radio Sink
+  setPlutoTxFreq(txfreqhz);          //Control Pluto directly to bypass problems with Gnu Radio Sink
 }
 
 void displayFreq(double fr)
