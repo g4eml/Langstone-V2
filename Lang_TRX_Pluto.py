@@ -3,11 +3,10 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Pluto
-# Generated: Wed May 25 11:57:23 2022
+# Generated: Fri Sep 22 21:56:05 2023
 ##################################################
 import os
 import errno
-
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
@@ -18,6 +17,7 @@ from gnuradio import iio
 from gnuradio.eng_option import eng_option
 from gnuradio.fft import logpwrfft
 from gnuradio.filter import firdes
+from grc_gnuradio import blks2 as grc_blks2
 from optparse import OptionParser
 
 
@@ -33,7 +33,6 @@ class Lang_TRX_Pluto(gr.top_block):
         if plutoip==None :
           plutoip='pluto.local'
         plutoip='ip:' + plutoip
-        
         self.Tx_Mode = Tx_Mode = 0
         self.Tx_LO = Tx_LO = 1000000000
         self.Tx_Gain = Tx_Gain = 30
@@ -52,13 +51,50 @@ class Lang_TRX_Pluto(gr.top_block):
         self.MicGain = MicGain = 5.0
         self.KEY = KEY = False
         self.FMMIC = FMMIC = 50
+        self.FFT_SEL = FFT_SEL = 0
         self.CTCSS = CTCSS = 885
         self.AMMIC = AMMIC = 5
-        self.AFGain = AFGain = 20
+        self.AFGain = AFGain = 99
 
         ##################################################
         # Blocks
         ##################################################
+        self.rational_resampler_xxx_1_2 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=8,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_1_1_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=2,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_1_1 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=2,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_1_0_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=4,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_1_0 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=4,
+                taps=None,
+                fractional_bw=None,
+        )
+        self.rational_resampler_xxx_1 = filter.rational_resampler_ccc(
+                interpolation=1,
+                decimation=8,
+                taps=None,
+                fractional_bw=None,
+        )
         self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
                 interpolation=11,
                 decimation=1,
@@ -68,7 +104,7 @@ class Lang_TRX_Pluto(gr.top_block):
         self.pluto_source_0 = iio.pluto_source(plutoip, 1000000000, 528000, 2000000, 0x800, True, True, True, "slow_attack", 64.0, '', True)
         self.pluto_sink_0 = iio.pluto_sink(plutoip, 1000000000, 528000, 2000000, 0x800, False, 0, '', True)
         self.logpwrfft_x_0_0 = logpwrfft.logpwrfft_c(
-        	sample_rate=48000,
+        	sample_rate=48000/ (2** FFT_SEL),
         	fft_size=512,
         	ref_scale=2,
         	frame_rate=15,
@@ -76,7 +112,7 @@ class Lang_TRX_Pluto(gr.top_block):
         	average=True,
         )
         self.logpwrfft_x_0 = logpwrfft.logpwrfft_c(
-        	sample_rate=48000,
+        	sample_rate=48000/ (2 ** FFT_SEL),
         	fft_size=512,
         	ref_scale=2,
         	frame_rate=15,
@@ -108,6 +144,20 @@ class Lang_TRX_Pluto(gr.top_block):
         self.blocks_add_xx_0_0 = blocks.add_vff(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
         self.blocks_add_const_vxx_0_0 = blocks.add_const_vff(((0.5 * int(Tx_Mode==5)) + int(Tx_Mode==2) +int(Tx_Mode==3), ))
+        self.blks2_selector_0_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_gr_complex*1,
+        	num_inputs=4,
+        	num_outputs=1,
+        	input_index=FFT_SEL,
+        	output_index=0,
+        )
+        self.blks2_selector_0 = grc_blks2.selector(
+        	item_size=gr.sizeof_gr_complex*1,
+        	num_inputs=4,
+        	num_outputs=1,
+        	input_index=FFT_SEL,
+        	output_index=0,
+        )
         self.band_pass_filter_1 = filter.fir_filter_fff(1, firdes.band_pass(
         	1, 48000, 300, 3500, 100, firdes.WIN_HAMMING, 6.76))
         self.band_pass_filter_0_0 = filter.fir_filter_ccc(1, firdes.complex_band_pass(
@@ -139,6 +189,8 @@ class Lang_TRX_Pluto(gr.top_block):
         self.analog_agc3_xx_0 = analog.agc3_cc(1e-2, 5e-7, 0.1, 1.0, 1)
         self.analog_agc3_xx_0.set_max_gain(1000)
 
+
+
         ##################################################
         # Connections
         ##################################################
@@ -159,6 +211,8 @@ class Lang_TRX_Pluto(gr.top_block):
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.band_pass_filter_0_0, 0), (self.blocks_multiply_const_vxx_4, 0))
         self.connect((self.band_pass_filter_1, 0), (self.blocks_add_xx_0_0, 1))
+        self.connect((self.blks2_selector_0, 0), (self.logpwrfft_x_0, 0))
+        self.connect((self.blks2_selector_0_0, 0), (self.logpwrfft_x_0_0, 0))
         self.connect((self.blocks_add_const_vxx_0_0, 0), (self.analog_rail_ff_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_rail_ff_0, 0))
         self.connect((self.blocks_add_xx_0_0, 0), (self.analog_nbfm_tx_0, 0))
@@ -180,14 +234,26 @@ class Lang_TRX_Pluto(gr.top_block):
         self.connect((self.blocks_multiply_const_vxx_3, 0), (self.blocks_add_xx_2, 0))
         self.connect((self.blocks_multiply_const_vxx_4, 0), (self.blocks_add_xx_2, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.band_pass_filter_0_0, 0))
-        self.connect((self.blocks_mute_xx_0_0_0, 0), (self.logpwrfft_x_0_0, 0))
+        self.connect((self.blocks_mute_xx_0_0_0, 0), (self.blks2_selector_0_0, 0))
         self.connect((self.blocks_mute_xx_0_0_0, 0), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.blocks_mute_xx_0_0_0, 0), (self.rational_resampler_xxx_1_0_0, 0))
+        self.connect((self.blocks_mute_xx_0_0_0, 0), (self.rational_resampler_xxx_1_1_0, 0))
+        self.connect((self.blocks_mute_xx_0_0_0, 0), (self.rational_resampler_xxx_1_2, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.band_pass_filter_0, 0))
-        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.logpwrfft_x_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blks2_selector_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.rational_resampler_xxx_1, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.rational_resampler_xxx_1_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.rational_resampler_xxx_1_1, 0))
         self.connect((self.logpwrfft_x_0, 0), (self.blocks_udp_sink_0, 0))
         self.connect((self.logpwrfft_x_0_0, 0), (self.blocks_udp_sink_0_0, 0))
         self.connect((self.pluto_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.pluto_sink_0, 0))
+        self.connect((self.rational_resampler_xxx_1, 0), (self.blks2_selector_0, 3))
+        self.connect((self.rational_resampler_xxx_1_0, 0), (self.blks2_selector_0, 2))
+        self.connect((self.rational_resampler_xxx_1_0_0, 0), (self.blks2_selector_0_0, 2))
+        self.connect((self.rational_resampler_xxx_1_1, 0), (self.blks2_selector_0, 1))
+        self.connect((self.rational_resampler_xxx_1_1_0, 0), (self.blks2_selector_0_0, 1))
+        self.connect((self.rational_resampler_xxx_1_2, 0), (self.blks2_selector_0_0, 3))
 
     def get_Tx_Mode(self):
         return self.Tx_Mode
@@ -321,6 +387,16 @@ class Lang_TRX_Pluto(gr.top_block):
         self.FMMIC = FMMIC
         self.blocks_multiply_const_vxx_0_0.set_k((self.FMMIC/5.0, ))
 
+    def get_FFT_SEL(self):
+        return self.FFT_SEL
+
+    def set_FFT_SEL(self, FFT_SEL):
+        self.FFT_SEL = FFT_SEL
+        self.logpwrfft_x_0_0.set_sample_rate(48000/ (2** self.FFT_SEL))
+        self.logpwrfft_x_0.set_sample_rate(48000/ (2 ** self.FFT_SEL))
+        self.blks2_selector_0_0.set_input_index(int(self.FFT_SEL))
+        self.blks2_selector_0.set_input_index(int(self.FFT_SEL))
+
     def get_CTCSS(self):
         return self.CTCSS
 
@@ -427,7 +503,10 @@ def docommands(tb):
               tb.set_Tx_Gain(value)     
            if line[0]=='C':
               value=int(line[1:])
-              tb.set_CTCSS(value)   
+              tb.set_CTCSS(value) 
+           if line[0]=='W':
+              value=int(line[1:])
+              tb.set_FFT_SEL(value)   
                                                                  
        except:
          break
