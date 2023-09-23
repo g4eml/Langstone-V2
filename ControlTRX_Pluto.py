@@ -123,7 +123,10 @@ def docommands(tb):
            if line[0]=='C':
               value=int(line[1:])
               tb.set_CTCSS(value)   
-                                                                 
+           if line[0]=='W':
+              value=int(line[1:])
+              tb.set_FFT_SEL(value) 
+                                                                                
        except:
          break
 

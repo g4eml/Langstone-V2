@@ -99,6 +99,7 @@ void RFERX();
 void RFETX();
 void RFETXRX();
 void RFEClose();
+void setFFTBW(int bw);
 
 int minGain(double freq);
 int maxGain(double freq);
@@ -128,6 +129,7 @@ int bandRFEPort[numband]= {0,0,0,0,0,0,0,0,0,0,0,1};
 float bandSmeterZero[numband]={-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80};
 int bandSSBFiltLow[numband]={300,300,300,300,300,300,300,300,300,300,300,300};
 int bandSSBFiltHigh[numband]={3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000};
+int bandFFTBW[numband]={0,0,0,0,0,0,0,0,0,0,0,0};
 
 #define minFreq 0.0
 #define maxFreq 99999.99999
@@ -208,6 +210,9 @@ int sendBeacon=0;
 int dotCount=0;
 int transmitting=0;
 int dialLock=0;
+
+int rxFilterLow;
+int rxFilterHigh;
 
 int keyDownTimer=0;
 int CWIDkeyDownTime=1000;                     //time to put key down between CW Idents (100 per second)
@@ -654,6 +659,14 @@ void waterfall()
           //draw Bandwidth indicator
           int p=points/2;
           
+          bwBarStart=rxFilterLow/HzPerBin;
+          bwBarEnd=rxFilterHigh/HzPerBin;
+          
+          if(bwBarStart < -255) bwBarStart = -255;
+          if(bwBarEnd  > 255) bwBarEnd = 255;
+          
+        
+          
           if (((mode==CW) || (mode==CWN)) && (transmitting==0 && satMode()== 0))
           {
            centreShift=800/HzPerBin;
@@ -663,26 +676,72 @@ void waterfall()
            centreShift=0;          
           }
 
-          drawLine(p+FFTX+bwBarStart-bwbaroffset, FFTY-spectrum_rows+5, p+FFTX+bwBarStart-bwbaroffset, FFTY-spectrum_rows,255,140,0);
+          if(bwBarStart > -255) drawLine(p+FFTX+bwBarStart-bwbaroffset, FFTY-spectrum_rows+5, p+FFTX+bwBarStart-bwbaroffset, FFTY-spectrum_rows,255,140,0);
           drawLine(p+FFTX+bwBarStart-bwbaroffset, FFTY-spectrum_rows, p+FFTX+bwBarEnd-bwbaroffset, FFTY-spectrum_rows,255,140,0);
-          drawLine(p+FFTX+bwBarEnd-bwbaroffset, FFTY-spectrum_rows+5, p+FFTX+bwBarEnd-bwbaroffset, FFTY-spectrum_rows,255,140,0);  
+          
+          if(bwBarEnd < 255) drawLine(p+FFTX+bwBarEnd-bwbaroffset, FFTY-spectrum_rows+5, p+FFTX+bwBarEnd-bwbaroffset, FFTY-spectrum_rows,255,140,0);  
           //draw centre line (displayed frequency)
           drawLine(p+FFTX+centreShift, FFTY-10, p+FFTX+centreShift, FFTY-spectrum_rows,255,0,0);  
           
           
-          //draw Scale. 
+          //draw x Axis. 
+          int ticks[11] = {0,21,43,64,85,107,128,149,171,192,213};    // Rounded tick spacing at 21.333 pixels per tick 
+          drawLine(FFTX,FFTY +3,FFTX + points,FFTY+3,0,255,0);
+          for(int tick = 0;tick < 11;tick++)
+            {
+             drawLine(FFTX + p + ticks[tick],FFTY+3,FFTX + p + ticks[tick],FFTY +5,0,255,0);
+             drawLine(FFTX + p - ticks[tick],FFTY+3,FFTX + p - ticks[tick],FFTY +5,0,255,0); 
+            }
+          
+          //draw scale
           setForeColour(0,255,0);
           textSize=1;
-          gotoXY(p+centreShift+FFTX-12,FFTY+8);
+          gotoXY(p+FFTX-12,FFTY+8);
           displayStr(" 0 ");
-          gotoXY(p+centreShift+FFTX-10000/HzPerBin-24,FFTY+8);
-          displayStr(" -10k ");
-          gotoXY(p+centreShift+FFTX-20000/HzPerBin-24,FFTY+8);
-          displayStr(" -20k ");
-          gotoXY(p+centreShift+FFTX+10000/HzPerBin-24,FFTY+8);
-          displayStr(" +10k ");                                                                                             
-          gotoXY(p+centreShift+FFTX+20000/HzPerBin-24,FFTY+8);
-          displayStr(" +20k ");
+          switch(bandFFTBW[band])
+          {
+              case 0:                 //48KHz BW
+              gotoXY(p+FFTX-ticks[5]-24,FFTY+8);
+              displayStr(" -10k   ");
+              gotoXY(p+FFTX-ticks[10]-24,FFTY+8);
+              displayStr(" -20k   ");
+              gotoXY(p+FFTX+ticks[5]-24,FFTY+8);
+              displayStr(" +10k   ");                                                                                             
+              gotoXY(p+FFTX+ticks[10]-24,FFTY+8);
+              displayStr(" +20k   ");
+            break;
+            case 1:                 //24KHz BW
+              gotoXY(p+FFTX-ticks[5]-20,FFTY+8);
+              displayStr(" -5k   ");
+              gotoXY(p+FFTX-ticks[10]-24,FFTY+8);
+              displayStr(" -10k   ");
+              gotoXY(p+FFTX+ticks[5]-20,FFTY+8);
+              displayStr(" +5k   ");                                                                                             
+              gotoXY(p+FFTX+ticks[10]-24,FFTY+8);
+              displayStr(" +10k   ");
+            break;
+            case 2:                 //12KHz BW
+              gotoXY(p+FFTX-ticks[5]-28,FFTY+8);
+              displayStr(" -2.5k   ");
+              gotoXY(p+FFTX-ticks[10]-20,FFTY+8);
+              displayStr(" -5k   ");
+              gotoXY(p+FFTX+ticks[5]-28,FFTY+8);
+              displayStr(" +2.5k   ");                                                                                             
+              gotoXY(p+FFTX+ticks[10]-20,FFTY+8);
+              displayStr(" +5k   ");
+            break;
+            case 3:                 //6KHz BW
+              gotoXY(p+FFTX-ticks[5]-32,FFTY+8);
+              displayStr(" -1.25k   ");
+              gotoXY(p+FFTX-ticks[10]-28,FFTY+8);
+              displayStr(" -2.5k   ");
+              gotoXY(p+FFTX+ticks[5]-32,FFTY+8);
+              displayStr(" +1.25k   ");                                                                                             
+              gotoXY(p+FFTX+ticks[10]-28,FFTY+8);
+              displayStr(" +2.5k   ");
+            break;
+          }
+
  
 
           if((transmitting==0) || (satMode()==1))
@@ -2155,6 +2214,17 @@ if((touchY>freqDisplayY) & (touchY < freqDisplayY+freqDisplayCharHeight) & (touc
   }
 
 
+//touch on spectrum display increments the FFT Bandwidth
+if((touchY < FFTY) & (touchY > FFTY - spectrum_rows) & (touchX > FFTX) & (touchX < FFTX + points))   
+  {
+    bandFFTBW[band]++;
+    if(bandFFTBW[band] > 3)  bandFFTBW[band] = 0;
+    setFFTBW(bandFFTBW[band]);
+    return;
+  }
+
+
+
 if(popupSel==MODE)
 {
   for(int n=0;n<nummode;n++)
@@ -2225,6 +2295,7 @@ void setBand(int b)
   setFreq(freq);
   mode=bandMode[band];
   setMode(mode);
+  setFFTBW(bandFFTBW[band]);
   setBandBits(bandBitsRx[band]);
   squelch=bandSquelch[band];
   setSquelch(squelch);
@@ -2514,9 +2585,8 @@ void setRxFilter(int low,int high)
   sprintf(filtStr,"F%d",high);
   sendFifo(filtStr);
   
-  bwBarStart=low/HzPerBin;
-  bwBarEnd=high/HzPerBin;
-  
+  rxFilterLow = low;
+  rxFilterHigh = high;  
 }
 
 void setTxFilter(int low,int high)
@@ -2526,6 +2596,30 @@ void setTxFilter(int low,int high)
   sendFifo(filtStr);
   sprintf(filtStr,"f%d",high);
   sendFifo(filtStr);  
+}
+
+
+void setFFTBW(int bw)
+{
+  char BWStr[10];
+  sprintf(BWStr,"W%d",bw);
+  sendFifo(BWStr);
+  
+  switch(bw)
+  {
+  case 0:             //48KHz   Sample rate
+  HzPerBin = 94;
+  break;
+  case 1:             //24KHz   Sample rate
+  HzPerBin = 47;
+  break; 
+  case 2:             //12KHz   Sample rate
+  HzPerBin = 23;
+  break;
+  case 3:             //6KHz   Sample rate
+  HzPerBin = 12;
+  break;
+  }
 }
 
 
@@ -3814,7 +3908,9 @@ while(fscanf(conffile,"%49s %99s [^\n]\n",variable,value) !=EOF)
     sprintf(vname,"bandSSBFiltLow%02d",b);
     if(strstr(variable,vname)) sscanf(value,"%d",&bandSSBFiltLow[b]); 
     sprintf(vname,"bandSSBFiltHigh%02d",b);
-    if(strstr(variable,vname)) sscanf(value,"%d",&bandSSBFiltHigh[b]);     
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSSBFiltHigh[b]); 
+    sprintf(vname,"bandFFTBW%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandFFTBW[b]);    
     }
 
     
@@ -3884,7 +3980,8 @@ for(int b=0;b<numband;b++)
   fprintf(conffile,"bandRxGain%02d %d\n",b,bandRxGain[b]);
   fprintf(conffile,"bandSmeterZero%02d %f\n",b,bandSmeterZero[b]);
   fprintf(conffile,"bandSSBFiltLow%02d %d\n",b,bandSSBFiltLow[b]);
-  fprintf(conffile,"bandSSBFiltHigh%02d %d\n",b,bandSSBFiltHigh[b]);    
+  fprintf(conffile,"bandSSBFiltHigh%02d %d\n",b,bandSSBFiltHigh[b]);
+  fprintf(conffile,"bandFFTBW%02d %d\n",b,bandFFTBW[b]);    
 }
 
 fprintf(conffile,"currentBand %d\n",band);
