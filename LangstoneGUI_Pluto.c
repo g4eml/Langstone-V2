@@ -1184,8 +1184,13 @@ void sendFifo(char * s)
   char fs[50];
   int ret;
   int retry;
+  int success;
   strcpy(fs,s);
   strcat(fs,"\n");
+  
+  success = 0;
+  do
+  {
   fifofd=open("/tmp/langstoneTRx",O_WRONLY|O_NONBLOCK);
   retry=0;
     do
@@ -1197,10 +1202,17 @@ void sendFifo(char * s)
    while((ret==-1)&(retry<10));   
   if(ret==-1)
     {
-      displayError("Lang_TRX.py Not Responding");
+      displayError("Waiting for Lang_TRX.py");
+      success = 0;
+     }
+  else
+     {
+     success = 1;
      }
   close(fifofd);
   delay(1);
+  }
+  while(success == 0);
 }
 
 void initGPIO(void)
