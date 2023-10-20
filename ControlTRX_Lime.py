@@ -34,9 +34,6 @@ def docommands(tb):
            line=line.strip()
            if line[0]=='Q':
               ex=True                  
-           if line[0]=='U':
-              value=int(line[1:])
-              tb.set_Rx_Mute(value)
            if line[0]=='H':
               value=int(line[1:])
               if value==1:   

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Pluto
-# Generated: Fri Sep 22 21:56:05 2023
+# Generated: Fri Oct 20 21:27:54 2023
 ##################################################
 import os
 import errno
@@ -39,7 +39,6 @@ class Lang_TRX_Pluto(gr.top_block):
         self.Tx_Filt_Low = Tx_Filt_Low = 300
         self.Tx_Filt_High = Tx_Filt_High = 3000
         self.ToneBurst = ToneBurst = False
-        self.SQL = SQL = 50
         self.Rx_Mute = Rx_Mute = False
         self.Rx_Mode = Rx_Mode = 3
         self.Rx_LO = Rx_LO = 1000000000
@@ -54,7 +53,7 @@ class Lang_TRX_Pluto(gr.top_block):
         self.FFT_SEL = FFT_SEL = 0
         self.CTCSS = CTCSS = 885
         self.AMMIC = AMMIC = 5
-        self.AFGain = AFGain = 99
+        self.AFGain = AFGain = 0
 
         ##################################################
         # Blocks
@@ -171,7 +170,6 @@ class Lang_TRX_Pluto(gr.top_block):
         self.analog_sig_source_x_0 = analog.sig_source_c(48000, analog.GR_COS_WAVE, 0, 1, 0)
         self.analog_rail_ff_0_0 = analog.rail_ff(-0.99, 0.99)
         self.analog_rail_ff_0 = analog.rail_ff(-1, 1)
-        self.analog_pwr_squelch_xx_0 = analog.pwr_squelch_cc(SQL-100, 0.001, 0, False)
         self.analog_nbfm_tx_0 = analog.nbfm_tx(
         	audio_rate=48000,
         	quad_rate=48000,
@@ -189,8 +187,6 @@ class Lang_TRX_Pluto(gr.top_block):
         self.analog_agc3_xx_0 = analog.agc3_cc(1e-2, 5e-7, 0.1, 1.0, 1)
         self.analog_agc3_xx_0.set_max_gain(1000)
 
-
-
         ##################################################
         # Connections
         ##################################################
@@ -198,7 +194,6 @@ class Lang_TRX_Pluto(gr.top_block):
         self.connect((self.analog_const_source_x_0, 0), (self.blocks_float_to_complex_0_0, 1))
         self.connect((self.analog_nbfm_rx_0, 0), (self.blocks_multiply_const_vxx_2_0, 0))
         self.connect((self.analog_nbfm_tx_0, 0), (self.blocks_multiply_const_vxx_3, 0))
-        self.connect((self.analog_pwr_squelch_xx_0, 0), (self.analog_nbfm_rx_0, 0))
         self.connect((self.analog_rail_ff_0, 0), (self.band_pass_filter_1, 0))
         self.connect((self.analog_rail_ff_0_0, 0), (self.blocks_float_to_complex_0_0, 0))
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_multiply_xx_0, 1))
@@ -206,7 +201,7 @@ class Lang_TRX_Pluto(gr.top_block):
         self.connect((self.analog_sig_source_x_1_0, 0), (self.blocks_add_xx_0_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.audio_source_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.analog_pwr_squelch_xx_0, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.analog_nbfm_rx_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_mag_0, 0))
         self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_real_0, 0))
         self.connect((self.band_pass_filter_0_0, 0), (self.blocks_multiply_const_vxx_4, 0))
@@ -300,13 +295,6 @@ class Lang_TRX_Pluto(gr.top_block):
     def set_ToneBurst(self, ToneBurst):
         self.ToneBurst = ToneBurst
         self.analog_sig_source_x_1.set_amplitude(1.0*self.ToneBurst)
-
-    def get_SQL(self):
-        return self.SQL
-
-    def set_SQL(self, SQL):
-        self.SQL = SQL
-        self.analog_pwr_squelch_xx_0.set_threshold(self.SQL-100)
 
     def get_Rx_Mute(self):
         return self.Rx_Mute
@@ -456,10 +444,7 @@ def docommands(tb):
               tb.set_Rx_LO(value)
            if line[0]=='A':
               value=int(line[1:])
-              tb.set_Rx_Gain(value)
-           if line[0]=='S':
-              value=int(line[1:])
-              tb.set_SQL(value) 
+              tb.set_Rx_Gain(value) 
            if line[0]=='F':
               value=int(line[1:])
               tb.set_Rx_Filt_High(value) 
@@ -503,11 +488,11 @@ def docommands(tb):
               tb.set_Tx_Gain(value)     
            if line[0]=='C':
               value=int(line[1:])
-              tb.set_CTCSS(value) 
+              tb.set_CTCSS(value)   
            if line[0]=='W':
               value=int(line[1:])
-              tb.set_FFT_SEL(value)   
-                                                                 
+              tb.set_FFT_SEL(value) 
+                                                                                
        except:
          break
 

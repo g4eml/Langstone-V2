@@ -30,6 +30,7 @@ void setTx(int ptt);
 void setPtts(int p);
 void setMode(int mode);
 void setVolume(int vol);
+void setMute(int m);
 void setSquelch(int sql);
 void setSSBMic(int mic);
 void setFMMic(int mic);
@@ -103,26 +104,27 @@ double freq;
 double freqInc=0.001;
 #define numband 24
 int band=3;
+#define nummode 6
 double bandFreq[numband] = {50.200,70.200,144.200,432.200,1296.200,2320.200,2400.100,3400.100,5760.100,10368.200,24048.200,10489.55,433.2,433.2,433.2,433.2,433.2,433.2,1296.2,1296.2,1296.2,1296.2,1296.2,1296.2};
 double bandTxOffset[numband]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5328.0,-9936.0,-23616.0,-10069.5,0,0,0,0,0,0,0,0,0,0,0,0};
 double bandRxOffset[numband]={0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-5328.0,-9936.0,-23616.0,-10345.0,0,0,0,0,0,0,0,0,0,0,0,0};
 double bandRepShift[numband]={0.5,0,-0.6,1.6,-6.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int bandTxHarmonic[numband]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 int bandRxHarmonic[numband]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-int bandMode[numband]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int bandMode[numband]={0};
 int bandBitsRx[numband]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23};
 int bandBitsTx[numband]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23};
-int bandSquelch[numband]={30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30};
+int bandSquelch[numband][nummode]={0};
 int bandFFTRef[numband]={-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10};
 int bandTxAtt[numband]={73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73};
 int bandRxGain[numband]={73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73};              
-int bandDuplex[numband]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int bandCTCSS[numband]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int bandRFEPort[numband]= {0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0};
+int bandDuplex[numband]={0};
+int bandCTCSS[numband]={0};
+int bandRFEPort[numband]= {0};
 float bandSmeterZero[numband]={-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80,-80};
 int bandSSBFiltLow[numband]={300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300,300};
 int bandSSBFiltHigh[numband]={3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000};
-int bandFFTBW[numband]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int bandFFTBW[numband]={0};
 
 #define minFreq 0.0
 #define maxFreq 99999.99999
@@ -206,6 +208,8 @@ int sendBeacon=0;
 int dotCount=0;
 int transmitting=0;
 int dialLock=0;
+int squelchGate=0;
+int lastSquelchGate=0;
 
 int rxFilterLow;
 int rxFilterHigh;
@@ -812,6 +816,27 @@ void S_Meter(void)
                 displayStr(smStr);
               }
            }
+           
+           if((sMeter < squelch) && (squelch > 0))
+            {
+            squelchGate = 0;
+            if(squelchGate != lastSquelchGate)
+              {
+              setMute(1);
+              lastSquelchGate=squelchGate;
+              }
+            }
+            else
+            {
+            squelchGate = 1;
+            if(squelchGate != lastSquelchGate)
+              {
+              setMute(0);
+              lastSquelchGate=squelchGate;
+              }
+            
+            }
+
  
 }
 
@@ -1482,14 +1507,11 @@ void initGUI()
   displayMenu();
   setBand(band);
   
-  if(mode==FM) 
-    {
+ 
+//Squelch button now visible in all modes.  
     sqlButton(1);
-    }
-  else
-    {
-    sqlButton(0);
-    }
+
+
 
     clearWaterfall();
 
@@ -1680,7 +1702,7 @@ void processMouse(int mbut)
         mouseScroll=0;
         if(squelch < 0) squelch=0;
         if(squelch > maxsql) squelch=maxsql;
-        bandSquelch[band]=squelch;
+        bandSquelch[band][mode]=squelch;
         setSquelch(squelch);
         return;      
       }   
@@ -1835,8 +1857,6 @@ if(buttonTouched(volButtonX,volButtonY))    //Vol
 
 if(buttonTouched(sqlButtonX,sqlButtonY))    //sql
     {
-     if(mode==FM)
-     {
       if(inputMode==SQUELCH)
         {
         setInputMode(FREQ);
@@ -1846,7 +1866,6 @@ if(buttonTouched(sqlButtonX,sqlButtonY))    //sql
         setInputMode(SQUELCH);
         }
       return;
-      }
     }
 
 
@@ -2184,7 +2203,7 @@ void setBand(int b)
   setMode(mode);
   setFFTBW(bandFFTBW[band]);
   setBandBits(bandBitsRx[band]);
-  squelch=bandSquelch[band];
+  squelch=bandSquelch[band][mode];
   setSquelch(squelch);
   setCTCSS(bandCTCSS[band]);
   FFTRef=bandFFTRef[band];
@@ -2298,9 +2317,6 @@ void setSquelch(int sql)
 {
   char sqlStr[10];
   sprintf(sqlStr,"S%d",sql);
-  sendFifo(sqlStr);
-  if(mode==FM)
-  {
   setForeColour(0,255,0);
   textSize=2;
   gotoXY(sqlButtonX+30,sqlButtonY-25);
@@ -2309,7 +2325,6 @@ void setSquelch(int sql)
   sprintf(sqlStr,"%d",sql);
   displayStr(sqlStr);
   configCounter=configDelay;
-  }
 }
 
 void setInputMode(int m)
@@ -2464,6 +2479,14 @@ void setKey(int k)
   sendFifo(kStr);
 }
 
+void setMute(int m)
+{
+  if(squelchGate == 0) m=1;
+  char mStr[5];
+  sprintf(mStr,"U%d",m);
+  sendFifo(mStr);
+}
+
 void setRxFilter(int low,int high)
 {
   char filtStr[10];
@@ -2532,7 +2555,6 @@ void setMode(int md)
     setRxFilter(bandSSBFiltLow[band],bandSSBFiltHigh[band]);    //USB Filter Setting    configured in settings.
     setTxFilter(300,3000);    //USB Filter Setting
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(0);
     ritButton(1);
     setRit(0);
     } 
@@ -2543,7 +2565,6 @@ void setMode(int md)
     setRxFilter(-1*bandSSBFiltHigh[band],-1*bandSSBFiltLow[band]); // LSB Filter Setting
     setTxFilter(-3000,-300); // LSB Filter Setting
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(0);
     ritButton(1);
     setRit(0);
     } 
@@ -2554,7 +2575,6 @@ void setMode(int md)
     setRxFilter(bandSSBFiltLow[band],bandSSBFiltHigh[band]);   // USB filter settings used for CW Wide Filter
     setTxFilter(-100,100); // CW Filter Setting
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(0);
     ritButton(1);
     setRit(0);
     } 
@@ -2565,7 +2585,6 @@ void setMode(int md)
     setRxFilter(600,1000);    //CW Narrow Filter
     setTxFilter(-100,100); // CW Filter Setting
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(0);
     ritButton(1);
     setRit(0);
     } 
@@ -2575,7 +2594,6 @@ void setMode(int md)
     setRxFilter(-7500,7500);    //FM Filter
     setTxFilter(-7500,7500);    //FM Filter  
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(1);
     ritButton(0);
     setRit(0);
     } 
@@ -2585,12 +2603,13 @@ void setMode(int md)
     setRxFilter(-5000,5000);    //AM Filter 
     setTxFilter(-5000,5000);    //AM Filter 
     setFreq(freq);    //set the frequency to adjust for CW offset.
-    sqlButton(0);
     ritButton(0);
     setRit(0);
     } 
 
-                                                                 
+    squelch=bandSquelch[band][mode];
+    setSquelch(squelch);
+                                                                     
 configCounter=configDelay;
 }
 
@@ -2620,7 +2639,7 @@ void setTx(int pt)
         displayFreq(freq+bandRepShift[band]);
         displayMenu();
         }
-      if (moni==0) sendFifo("U1");                        //mute the receiver
+      if (moni==0) setMute(1);                        //mute the receiver
       if(LimeRFEPresent)
         {
         if(satMode() ==1)
@@ -2655,7 +2674,7 @@ void setTx(int pt)
       }
       LimeTxEnable(0);      
       sendFifo("R");
-      sendFifo("U0");                  //unmute the receiver
+      setMute(0);                  //unmute the receiver
       if(LimeRFEPresent)
       {
         RFERX();
@@ -2938,7 +2957,7 @@ void setMoni(int m)
 {
   if(m==1)
     {
-     sendFifo("U0");
+     setMute(0);
      moni=1;
      gotoXY(moniX,moniY);
      textSize=2;
@@ -2947,7 +2966,7 @@ void setMoni(int m)
     } 
   else
     {
-     if (ptt | ptts) sendFifo("U1");
+     if (ptt | ptts) setMute(1);
      moni=0;
      gotoXY(moniX,moniY);
      textSize=2;
@@ -3655,8 +3674,18 @@ while(fscanf(conffile,"%49s %99s [^\n]\n",variable,value) !=EOF)
     if(strstr(variable,vname)) sscanf(value,"%d",&bandRFEPort[b]);      
     sprintf(vname,"bandFFTRef%02d",b);
     if(strstr(variable,vname)) sscanf(value,"%d",&bandFFTRef[b]);     
-    sprintf(vname,"bandSquelch%02d",b);
-    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b]);  
+    sprintf(vname,"bandSquelchUSB%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][USB]);
+    sprintf(vname,"bandSquelchLSB%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][LSB]);
+    sprintf(vname,"bandSquelchCW%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][CW]);
+    sprintf(vname,"bandSquelchCWN%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][CWN]);
+    sprintf(vname,"bandSquelchFM%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][FM]);
+    sprintf(vname,"bandSquelchAM%02d",b);
+    if(strstr(variable,vname)) sscanf(value,"%d",&bandSquelch[b][AM]);      
     sprintf(vname,"bandTxAtt%02d",b);
     if(strstr(variable,vname)) sscanf(value,"%d",&bandTxAtt[b]);
     sprintf(vname,"bandRxGain%02d",b);
@@ -3733,7 +3762,12 @@ for(int b=0;b<numband;b++)
   fprintf(conffile,"bandTxBits%02d %d\n",b,bandBitsTx[b]);
   fprintf(conffile,"bandRFEPort%02d %d\n",b,bandRFEPort[b]);
   fprintf(conffile,"bandFFTRef%02d %d\n",b,bandFFTRef[b]);
-  fprintf(conffile,"bandSquelch%02d %d\n",b,bandSquelch[b]);
+  fprintf(conffile,"bandSquelchUSB%02d %d\n",b,bandSquelch[b][USB]);
+  fprintf(conffile,"bandSquelchLSB%02d %d\n",b,bandSquelch[b][LSB]);
+  fprintf(conffile,"bandSquelchCW%02d %d\n",b,bandSquelch[b][CW]);
+  fprintf(conffile,"bandSquelchCWN%02d %d\n",b,bandSquelch[b][CWN]);
+  fprintf(conffile,"bandSquelchFM%02d %d\n",b,bandSquelch[b][FM]);
+  fprintf(conffile,"bandSquelchAM%02d %d\n",b,bandSquelch[b][AM]);
   fprintf(conffile,"bandTxAtt%02d %d\n",b,bandTxAtt[b]);
   fprintf(conffile,"bandRxGain%02d %d\n",b,bandRxGain[b]);
   fprintf(conffile,"bandSmeterZero%02d %f\n",b,bandSmeterZero[b]);

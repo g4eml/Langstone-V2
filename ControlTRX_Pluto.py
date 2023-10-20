@@ -75,10 +75,7 @@ def docommands(tb):
               tb.set_Rx_LO(value)
            if line[0]=='A':
               value=int(line[1:])
-              tb.set_Rx_Gain(value)
-           if line[0]=='S':
-              value=int(line[1:])
-              tb.set_SQL(value) 
+              tb.set_Rx_Gain(value) 
            if line[0]=='F':
               value=int(line[1:])
               tb.set_Rx_Filt_High(value) 
