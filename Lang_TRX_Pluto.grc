@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.13'?>
+<?grc format='1' created='3.7.11'?>
 <flow_graph>
   <timestamp>Sun Oct 20 17:07:22 2019</timestamp>
   <block>
@@ -73,20 +73,12 @@
       <value>True</value>
     </param>
     <param>
-      <key>sizing_mode</key>
-      <value>fixed</value>
-    </param>
-    <param>
       <key>thread_safe_setters</key>
       <value></value>
     </param>
     <param>
       <key>title</key>
       <value></value>
-    </param>
-    <param>
-      <key>placement</key>
-      <value>(0,0)</value>
     </param>
   </block>
   <block>
@@ -113,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>99</value>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -506,33 +498,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 12)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>SQL</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>50</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(1208, 804)</value>
     </param>
     <param>
@@ -821,7 +786,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 352)</value>
+      <value>(648, 360)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -909,65 +874,6 @@
     <param>
       <key>tau</key>
       <value>75e-6</value>
-    </param>
-  </block>
-  <block>
-    <key>analog_pwr_squelch_xx</key>
-    <param>
-      <key>alpha</key>
-      <value>0.001</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(592, 352)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>gate</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>analog_pwr_squelch_xx_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>ramp</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>threshold</key>
-      <value>SQL-100</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
     </param>
   </block>
   <block>
@@ -1387,7 +1293,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 144)</value>
+      <value>(424, 148)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2467,7 +2373,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 372)</value>
+      <value>(976, 372)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3691,12 +3597,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>analog_pwr_squelch_xx_0</source_block_id>
-    <sink_block_id>analog_nbfm_rx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>analog_rail_ff_0</source_block_id>
     <sink_block_id>band_pass_filter_1</sink_block_id>
     <source_key>0</source_key>
@@ -3740,7 +3640,7 @@
   </connection>
   <connection>
     <source_block_id>band_pass_filter_0</source_block_id>
-    <sink_block_id>analog_pwr_squelch_xx_0</sink_block_id>
+    <sink_block_id>analog_nbfm_rx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
