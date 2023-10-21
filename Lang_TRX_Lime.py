@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lang Trx Lime
-# Generated: Fri Oct 20 21:28:04 2023
+# Generated: Sat Oct 21 21:15:11 2023
 ##################################################
 import os
 import errno
@@ -96,6 +96,8 @@ class Lang_TRX_Lime(gr.top_block):
                 taps=None,
                 fractional_bw=None,
         )
+        self.low_pass_filter_0 = filter.fir_filter_fff(1, firdes.low_pass(
+        	1, 48000, 3000, 1000, firdes.WIN_HAMMING, 6.76))
         self.logpwrfft_x_0_1 = logpwrfft.logpwrfft_c(
         	sample_rate=48000/ (2 ** FFT_SEL),
         	fft_size=512,
@@ -231,7 +233,7 @@ class Lang_TRX_Lime(gr.top_block):
         self.connect((self.blocks_float_to_complex_0_0, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_0, 1))
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.audio_sink_0, 0))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.low_pass_filter_0, 0))
         self.connect((self.blocks_multiply_const_vxx_2, 0), (self.blocks_add_xx_1_0, 0))
         self.connect((self.blocks_multiply_const_vxx_2_0, 0), (self.blocks_add_xx_1, 1))
         self.connect((self.blocks_multiply_const_vxx_2_1, 0), (self.blocks_add_xx_1_0, 1))
@@ -252,6 +254,7 @@ class Lang_TRX_Lime(gr.top_block):
         self.connect((self.limesdr_source_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.logpwrfft_x_0_0_0, 0), (self.blocks_udp_sink_0_0, 0))
         self.connect((self.logpwrfft_x_0_1, 0), (self.blocks_udp_sink_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.audio_sink_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.limesdr_sink_0, 0))
         self.connect((self.rational_resampler_xxx_1, 0), (self.blks2_selector_0, 3))
         self.connect((self.rational_resampler_xxx_1_0, 0), (self.blks2_selector_0, 2))

@@ -2631,8 +2631,8 @@ void setMode(int md)
   if(md==AM)
     {
     sendFifo("M5");    //AM
-    setRxFilter(-5000,5000);    //AM Filter 
-    setTxFilter(-5000,5000);    //AM Filter 
+    setRxFilter(-3000,3000);    //AM Filter 
+    setTxFilter(-3000,3000);    //AM Filter 
     setFreq(freq);    //set the frequency to adjust for CW offset.
     ritButton(0);
     setRit(0);
