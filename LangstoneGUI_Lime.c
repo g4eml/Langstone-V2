@@ -789,6 +789,24 @@ void S_Meter(void)
 
           }
  
+           //draw the squelch setting bar
+          for(int ln=0;ln<2;ln++)
+          {
+            if(squelch<55)
+            {
+            drawLine(sMeterX+5,sMeterY-4+ln,sMeterX+6+squelch*2,sMeterY-4+ln,0,255,0);
+            drawLine(sMeterX+6+squelch*2,sMeterY-4+ln,sMeterX+6+160,sMeterY-4+ln,0,0,0);
+            }
+            else
+            {
+            int redbit=sMeterX+6+110+(squelch-55)*2;
+            if(redbit > (sMeterX+6+160)) redbit= sMeterX+6+160;
+            drawLine(sMeterX+5,sMeterY-4+ln,sMeterX+6+110,sMeterY-4+ln,0,255,0);
+            drawLine(sMeterX+6+110,sMeterY-4+ln,redbit,sMeterY-4+ln,255,0,0);
+            drawLine(redbit,sMeterY-4+ln,sMeterX+6+160,sMeterY-4+ln,0,0,0);
+            }
+          } 
+          
           sMeterCount++;
           if(sMeterCount>5)
           {
