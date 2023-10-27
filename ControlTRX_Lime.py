@@ -33,7 +33,10 @@ def docommands(tb):
          for line in filein:
            line=line.strip()
            if line[0]=='Q':
-              ex=True                  
+              ex=True 
+           if line[0]=='U':
+              value=int(line[1:])
+              tb.set_Rx_Mute(value)                 
            if line[0]=='H':
               value=int(line[1:])
               if value==1:   
@@ -52,9 +55,6 @@ def docommands(tb):
            if line[0]=='A':
               value=int(line[1:])
               tb.set_Rx_Gain(value)
-           if line[0]=='S':
-              value=int(line[1:])
-              tb.set_SQL(value) 
            if line[0]=='F':
               value=int(line[1:])
               tb.set_Rx_Filt_High(value) 
