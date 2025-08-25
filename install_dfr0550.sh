@@ -43,6 +43,10 @@ sudo apt-get -y install libi2c-dev
 sudo apt-get -y install doxygen
 sudo apt-get -y install swig
 
+echo "#################################"
+echo "##     Install Wiring Pi       ##"
+echo "#################################"
+
 # Install WiringPi
 cd /home/pi
 git clone https://github.com/WiringPi/WiringPi.git
