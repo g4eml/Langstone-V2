@@ -43,15 +43,18 @@ sudo apt-get -y install libi2c-dev
 sudo apt-get -y install doxygen
 sudo apt-get -y install swig
 
-echo "#################################"
-echo "##     Install Wiring Pi       ##"
-echo "#################################"
+# Install WiringPi
+cd /home/pi
+git clone https://github.com/WiringPi/WiringPi.git
+cd WiringPi
+./build debian
 
-# install WiringPi
-cd /tmp
-wget https://project-downloads.drogon.net/wiringpi-latest.deb
-sudo dpkg -i wiringpi-latest.deb
-cd ~
+# Read latest WiringPi version number and install it
+vMaj=`cut -d. -f1 VERSION`
+vMin=`cut -d. -f2 VERSION`
+mv debian-template/wiringpi_"$vMaj"."$vMin"_armhf.deb .
+sudo apt install ./wiringpi_"$vMaj"."$vMin"_armhf.deb
+cd /home/pi
 
 # Install LimeSuite 22.09 as at 27 Feb 23
 # Commit 9c983d872e75214403b7778122e68d920d583add
