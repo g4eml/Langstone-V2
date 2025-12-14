@@ -10,6 +10,9 @@ echo "#################################"
 echo "##  Update the Package Manager ##"
 echo "#################################"
 
+# Amend the sources.list to legacy
+sudo bash -c 'echo -e "deb http://legacy.raspbian.org/raspbian/ buster main contrib non-free rpi" > /etc/apt/sources.list'
+
 # Update the package manager
 sudo dpkg --configure -a
 sudo apt-get -y update
